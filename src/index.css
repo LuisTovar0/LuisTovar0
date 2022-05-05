@@ -5,9 +5,16 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: calc(10px + 2vmin);
 }
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+button {
+    width: 90px;
+    height: 30px;
+    margin: 20px;
 }
