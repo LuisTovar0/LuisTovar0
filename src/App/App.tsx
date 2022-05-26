@@ -1,16 +1,26 @@
 import React, {useState} from 'react';
-import logo from '../logo.svg';
 import './App.css';
+import infos, {Ref} from "../infos";
+
+type Elem = JSX.Element;
 
 export default function App() {
-  const [state, setter] = useState({count: 0});
+
+  const g = (ref: Ref) => (<li><a href={ref.url}>{ref.name}</a></li>);
+  const workLinks = infos.work.map(g);
+  const adLinks = infos.ads.map(g);
+  const musicLinks = infos.music.map(g);
+
+  const [list, listSetter] = useState(adLinks);
+  const buttons = [[workLinks, "Work"], [adLinks, "Recommendations"], [musicLinks, "Music"]]
+    .map(([l, n]) => (<button onClick={() => listSetter(l as Elem[])}>{n}</button>));
 
   return (
     <div className="App">
-      <img src={logo} className="App-logo" alt="logo"/>
-      <p> The site isn't ready, but it's going to be cool </p>
-      <button onClick={() => setter({count: state.count + 1})}>
-        Click me {state.count} </button>
+      <div className="buttons">
+        {buttons}
+      </div>
+      <ul>{list}</ul>
     </div>
   );
 }
