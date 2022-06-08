@@ -4,13 +4,13 @@ export interface Ref {
 }
 
 export interface Infos {
-  ads: Ref[],
+  cool: Ref[],
   music: Ref[],
   work: Ref[]
 }
 
 const infos: Infos = {
-  ads: [{
+  cool: [{
     name: "The 10 MwJ Telegram channel I administrate",
     url: "https://t.me/dezmincomjesus"
   }, {

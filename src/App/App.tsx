@@ -6,13 +6,13 @@ type Elem = JSX.Element;
 
 export default function App() {
 
-  const g = (ref: Ref) => (<li><a href={ref.url}>{ref.name}</a></li>);
-  const workLinks = infos.work.map(g);
-  const adLinks = infos.ads.map(g);
-  const musicLinks = infos.music.map(g);
+  const refToLi = (ref: Ref) => <li><a href={ref.url}>{ref.name}</a></li>;
+  const workLinks = infos.work.map(refToLi);
+  const coolLinks = infos.cool.map(refToLi);
+  const musicLinks = infos.music.map(refToLi);
 
-  const [list, listSetter] = useState(adLinks);
-  const buttons = [[workLinks, "Work"], [adLinks, "Recommendations"], [musicLinks, "Music"]]
+  const [list, listSetter] = useState(workLinks);
+  const buttons = [[workLinks, "Work"], [coolLinks, "Recommendations"], [musicLinks, "Music"]]
     .map(([l, n]) => (<button onClick={() => listSetter(l as Elem[])}>{n}</button>));
 
   return (
