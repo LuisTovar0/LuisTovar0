@@ -1,6 +1,6 @@
 Welcome to my GitHub profile!
 
-+ I'm a Computer Science and Engineering student, interested in full-stack web development
++ I'm a Front-End Software Engineer, using Angular on the job.
 
 + Contact me on [LinkedIn 💼](https://linkedin.com/in/luis--tovar)
 
