@@ -9,9 +9,20 @@
         {/if}
     </h1>
     <p>Alguma coisa vai aparecer aqui, algum dia...</p>
+    <p>Para já, só tenho a dizer:
+        {#if detect()?.os === "Android OS"}
+            estás num Android
+        {:else if detect()?.os === "iOS"}
+            estás num iOS
+        {:else}
+            estás no PC
+        {/if}
+    </p>
 </main>
 
 <script>
+  import {detect} from "detect-browser";
+
   const hour = new Date().getHours();
   let hasNeon = true;
   const flip = () => hasNeon = !hasNeon;
@@ -42,13 +53,14 @@
 
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.125rem;
     align-items: center;
     place-content: center;
 
     h1 {
       font-size: 40px;
       font-weight: bold;
+      margin-bottom: 3rem;
     }
 
     p {
