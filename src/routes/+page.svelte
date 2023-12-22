@@ -24,14 +24,18 @@
   import {detect} from "detect-browser";
 
   const hour = new Date().getHours();
+
   let hasNeon = true;
   const flip = () => hasNeon = !hasNeon;
-  setInterval(() => {
+  const flicker = () => {
     flip();
     setTimeout(flip, 100);
     setTimeout(flip, 160);
-    setTimeout(flip, 200);
-  }, 5000);
+    setTimeout(flip, 240);
+  };
+
+  setTimeout(flicker, 1000);
+  setInterval(flicker, 5000);
 </script>
 
 <style lang="scss">
