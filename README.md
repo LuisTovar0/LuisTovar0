@@ -1,7 +1,6 @@
 Welcome to my GitHub profile!
 
-+ I'm a Front-End Software Engineer, using Angular on the job.
-
++ I'm a Front-End Software Engineer, I use Angular (+Material) at work.
 + Contact me on [LinkedIn 💼](https://linkedin.com/in/luis--tovar)
 
 <p>
