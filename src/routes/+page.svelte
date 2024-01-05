@@ -1,5 +1,5 @@
-<main>
-    <h1 class:neon={hasNeon}>
+<main class="w-full h-full text-[#faf4d3] flex flex-col gap-0.5 items-center place-content-center">
+    <h1 class="text-4xl font-bold mb-12" class:neon={hasNeon}>
         {#if hour < 12}
             Bom dia!
         {:else if hour >= 18}
@@ -20,7 +20,7 @@
     </p>
 </main>
 
-<script>
+<script lang="ts">
   import {detect} from "detect-browser";
 
   const hour = new Date().getHours();
@@ -51,24 +51,8 @@
 
   main {
     background: radial-gradient(circle, #004643 0%, #0C1618 100%);
-    color: #faf4d3;
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-    align-items: center;
-    place-content: center;
-
-    h1 {
-      font-size: 40px;
-      font-weight: bold;
-      margin-bottom: 3rem;
-    }
 
     p {
-      font-size: 16px;
       text-shadow: 0 0 10px white;
     }
   }
