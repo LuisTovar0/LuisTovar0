@@ -25,7 +25,7 @@
 
   const hour = new Date().getHours();
 
-  let hasNeon = true;
+  let hasNeon = $state(true);
   const flip = () => hasNeon = !hasNeon;
   const flicker = () => {
     flip();
