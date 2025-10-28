@@ -1,30 +1,11 @@
 <main class="w-full h-full text-[#faf4d3] flex flex-col gap-0.5 items-center place-content-center">
     <h1 class="text-4xl font-bold mb-12" class:neon={hasNeon}>
-        {#if hour < 12}
-            Bom dia!
-        {:else if hour >= 18}
-            Boa noite!
-        {:else}
-            Boa tarde!
-        {/if}
+        Luís Tovar
     </h1>
-    <p>Alguma coisa vai aparecer aqui, algum dia...</p>
-    <p>Para já, só tenho a dizer:
-        {#if detect()?.os === "Android OS"}
-            estás num Android
-        {:else if detect()?.os === "iOS"}
-            estás num iOS
-        {:else}
-            estás no PC
-        {/if}
-    </p>
+    <p>Almost there.</p>
 </main>
 
 <script lang="ts">
-  import {detect} from "detect-browser";
-
-  const hour = new Date().getHours();
-
   let hasNeon = $state(true);
   const flip = () => hasNeon = !hasNeon;
   const flicker = () => {
