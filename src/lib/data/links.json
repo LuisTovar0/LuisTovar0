@@ -1,0 +1,56 @@
+{
+  "sections": [
+    {
+      "id": "professional",
+      "label": "Professional",
+      "links": [
+        {
+          "label": "Portfolio",
+          "url": "https://luistovar.com",
+          "description": "My latest work and projects"
+        },
+        {
+          "label": "LinkedIn",
+          "url": "https://linkedin.com/in/luistovar",
+          "description": "Professional network and experience"
+        },
+        {
+          "label": "GitHub",
+          "url": "https://github.com/luistovar",
+          "description": "Open source contributions"
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "label": "Social",
+      "links": [
+        {
+          "label": "Spotify",
+          "url": "https://open.spotify.com/user/lmbt2000?si=9109430a05744a2e"
+        },
+        {
+          "label": "Instagram",
+          "url": "https://instagram.com/luistovar",
+          "description": "Personal moments and photography"
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "label": "Contact",
+      "links": [
+        {
+          "label": "Email",
+          "url": "mailto:hello@luistovar.com",
+          "description": "Get in touch directly"
+        },
+        {
+          "label": "Book a Meeting",
+          "url": "https://calendly.com/luistovar",
+          "description": "Schedule a 15-minute sync"
+        }
+      ]
+    }
+  ]
+}
