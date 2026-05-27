@@ -3,6 +3,7 @@
     import linksData from "$lib/data/links.json";
     import { page } from "$app/state";
     import StlAnimation from "$lib/components/StlAnimation.svelte";
+    import { onMount } from "svelte";
 
     interface Props {
         children?: import('svelte').Snippet;
@@ -11,144 +12,155 @@
     let { children }: Props = $props();
 
     let hasNeon = $state(true);
-    const flip = () => hasNeon = !hasNeon;
-    const flicker = () => {
-        flip();
-        setTimeout(flip, 100);
-        setTimeout(flip, 160);
-        setTimeout(flip, 240);
-    };
 
-    $effect(() => {
-        const flickerInterval = setInterval(flicker, 5000);
-        const initialFlicker = setTimeout(flicker, 1000);
-        return () => {
-            clearInterval(flickerInterval);
-            clearTimeout(initialFlicker);
-        };
+    onMount(() => {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        if (!prefersReducedMotion) {
+            const flip = () => hasNeon = !hasNeon;
+            const flicker = () => {
+                flip();
+                setTimeout(flip, 100);
+                setTimeout(flip, 160);
+                setTimeout(flip, 240);
+            };
+
+            const flickerInterval = setInterval(flicker, 5000);
+            const initialFlicker = setTimeout(flicker, 1000);
+
+            return () => {
+                clearInterval(flickerInterval);
+                clearTimeout(initialFlicker);
+            };
+        }
     });
 
     const sections = linksData.sections;
 </script>
 
-<div class="h-[100dvh] w-full bg-[#0C1618] text-[#faf4d3] relative overflow-hidden selection:bg-[#D1AC00] selection:text-[#0C1618]">
-    <!-- Atmospheric Background Layers -->
+<div class="h-[100dvh] w-full bg-base-dark text-base-cream relative overflow-hidden selection-gold">
+    <!-- Background: Animation is a subtle quirk behind liquid glass -->
     <div class="fixed inset-0 z-0 pointer-events-none">
-        <div class="absolute inset-0 opacity-40" 
-             style="background: radial-gradient(circle at 15% 25%, #004643 0%, transparent 45%), radial-gradient(circle at 85% 75%, #002e2b 0%, transparent 40%);">
-        </div>
-        <!-- Grain Texture -->
-        <div class="absolute inset-0 opacity-[0.03] mix-blend-overlay grain-texture"></div>
-    </div>
-
-    <!-- Content Wrapper: Columnar Shift -->
-    <div class="relative z-10 w-full h-full grid grid-cols-1 grid-rows-[auto,minmax(0,1fr),auto] lg:grid-rows-none lg:grid-cols-[1fr,1.2fr] gap-0">
-        
-        <!-- Left Column: Branding & Nav -->
-        <header class="flex flex-col justify-center lg:justify-start pt-10 lg:pt-32 px-8 lg:px-16 lg:h-full min-h-0 text-center lg:text-left">
-            <h1 class="text-[clamp(4.5rem,12vw,12rem)] leading-[0.82] transition-all duration-75 mb-12 lg:mb-20" class:neon={hasNeon}>
-                Luís Tovar
-            </h1>
-
-            <nav class="flex flex-wrap justify-center lg:justify-start gap-3 lg:gap-6">
-                {#each sections as section}
-                    <a 
-                        href="/{section.id}" 
-                        class="px-5 py-2 rounded-full border border-[#D1AC00]/10 bg-[#D1AC00]/5 text-xs font-medium tracking-[0.15em] uppercase transition-all duration-500 hover:bg-[#D1AC00]/20 hover:border-[#D1AC00]/40 hover:shadow-[0_0_20px_rgba(209,172,0,0.15)]"
-                        class:active={page.url.pathname === `/${section.id}`}
-                    >
-                        {section.label}
-                    </a>
-                {/each}
-            </nav>
-
-            <div class="hidden lg:block mt-12 lg:mt-20 overflow-hidden">
-                <StlAnimation />
-            </div>
-        </header>
-
-        <!-- Right Column: Content -->
-        <main class="flex items-stretch lg:items-center justify-center lg:justify-start min-h-0 p-6 lg:p-20 lg:pt-40 lg:h-full overflow-hidden">
-            <div class="w-full max-w-xl h-full lg:h-auto max-h-full lg:min-h-[420px] flex flex-col bg-[#004643]/10 backdrop-blur-2xl border border-[#faf4d3]/5 rounded-[2rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)]">
-                <div class="links-scroll flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-                    {@render children?.()}
-                </div>
-            </div>
-        </main>
-
-        <!-- Animation: mobile-only, appears below links -->
-        <div class="lg:hidden px-8 pt-4 pb-6 max-h-[18vh] overflow-hidden flex justify-center">
+        <div class="absolute inset-0 opacity-40 bg-gradient-radial"></div>
+        {#if page.url.pathname !== '/animations'}
+        <div class="absolute inset-0 opacity-20 motion-safe:animate-pulse-slow">
             <StlAnimation />
         </div>
+        {/if}
+        <!-- Grain Texture -->
+        <div class="grain-texture"></div>
+    </div>
+
+    <!-- Asymmetric Editorial Layout -->
+    <div class="relative z-10 w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar flex flex-col lg:block">
+        {#if page.url.pathname === '/animations'}
+            <main class="w-full min-h-full py-12 px-6 sm:px-12 lg:px-24">
+                {@render children?.()}
+            </main>
+        {:else}
+        <div class="max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-[1fr,1.2fr] lg:gap-x-12 gap-y-0 min-h-full w-full px-6 sm:px-12 lg:px-24">
+            
+            <div class="lg:col-span-1 pt-12 lg:pt-[10vh] z-20">
+                <h1 class="text-[clamp(4rem,15vw,10rem)] leading-[0.85] mb-4 lg:mb-8 text-left pointer-events-none" class:neon-text={hasNeon}>
+                    Luís<br class="hidden sm:block lg:hidden" /> Tovar
+                </h1>
+            </div>
+            <div class="hidden lg:block"></div>
+
+            <header class="flex flex-col lg:sticky lg:top-12 lg:h-fit z-40 shrink-0">
+                <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 lg:relative lg:bottom-auto lg:left-auto lg:translate-x-0 flex flex-row lg:flex-col gap-2 lg:gap-4 p-1.5 lg:p-0 bg-base-dark/40 backdrop-blur-2xl border border-base-cream/10 rounded-full lg:rounded-none lg:border-none lg:bg-transparent lg:backdrop-blur-none z-50">
+                    {#each sections as section, i}
+                        {@const isActive = page.url.pathname === `/${section.id}`}
+                        <a
+                            href="/{section.id}"
+                            class="nav-link group"
+                            class:nav-active={isActive}
+                            style="animation: nav-item-reveal 0.8s var(--easing-expo) {i * 0.1}s both"
+                        >
+                            <span class="nav-indicator hidden lg:block"></span>
+                            <span class="nav-text" class:neon-text={isActive && hasNeon}>{section.label}</span>
+                            {#if isActive}
+                                <span class="nav-bloom block lg:hidden"></span>
+                            {/if}
+                        </a>
+                    {/each}
+                </nav>
+            </header>
+
+            <main class="flex-1 w-full max-w-xl py-8 lg:pt-0 pb-40 lg:pb-32">
+                {@render children?.()}
+            </main>
+        </div>
+        {/if}
     </div>
 </div>
 
 <style lang="scss">
-    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
-
-    :global(html), :global(body) {
-        height: 100%;
-        overflow: hidden;
-        overscroll-behavior: none;
+    :root {
+        --color-gold: oklch(74.6% 0.17 84.1);
+        --color-cream: oklch(96.7% 0.03 89.2);
+        --easing-expo: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    :global(body) {
-        font-family: 'Urbanist', sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #0C1618;
-        letter-spacing: 0.01em;
-        -webkit-font-smoothing: antialiased;
+    .nav-link {
+        @apply flex items-center relative text-[0.7rem] font-semibold tracking-[0.25em] uppercase text-base-cream/30 whitespace-nowrap no-underline py-2.5 px-5 lg:px-0 lg:py-2 cursor-pointer;
+        transition: all 0.7s var(--easing-expo);
+        
+        &.nav-active {
+            @apply text-base-cream;
+        }
     }
 
-    .links-scroll {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(209, 172, 0, 0.3) transparent;
+    .nav-text {
+        @apply relative z-10;
+        transition: shadow 0.3s var(--easing-expo);
     }
 
-    .links-scroll::-webkit-scrollbar {
-        width: 6px;
+    @keyframes nav-item-reveal {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .links-scroll::-webkit-scrollbar-track {
-        background: transparent;
+    /* Desktop Indicator */
+    .nav-indicator {
+        @apply h-[1px] bg-accent-gold mr-0 opacity-0;
+        width: 0;
+        transition: all 0.7s var(--easing-expo);
     }
 
-    .links-scroll::-webkit-scrollbar-thumb {
-        background-color: rgba(209, 172, 0, 0.25);
-        border-radius: 9999px;
+    /* Mobile Bloom Indicator */
+    .nav-bloom {
+        @apply absolute inset-0 rounded-full bg-base-cream/5 border border-base-cream/10 z-0;
+        box-shadow: 
+            inset 0 0 10px oklch(from var(--color-cream) l c h / 0.05),
+            0 0 20px oklch(from var(--color-gold) l c h / 0.1);
+        animation: bloom-reveal 0.6s var(--easing-expo) forwards;
     }
 
-    .links-scroll::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(209, 172, 0, 0.45);
+    @keyframes bloom-reveal {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
     }
 
-    h1 {
-        font-family: 'Instrument Serif', serif;
-        font-style: italic;
-        font-weight: 400;
-        letter-spacing: -0.03em;
-        line-height: 0.85;
+    @media (hover: hover) {
+        .nav-link:not(.nav-active):hover {
+            @apply text-base-cream/60;
+        }
+        .nav-link:hover .nav-indicator {
+            @apply w-6 mr-4 opacity-100;
+            box-shadow: 0 0 15px var(--color-gold);
+        }
     }
 
-    .neon {
-        --neon: #D1AC00;
-        color: #faf4d3;
-        text-shadow: 
-            0 0 12px rgba(250, 244, 211, 0.2), 
-            0 0 25px var(--neon), 
-            0 0 50px rgba(209, 172, 0, 0.4);
+    .nav-active .nav-indicator {
+        @apply w-12 mr-4 opacity-100;
+        box-shadow: 0 0 20px var(--color-gold);
     }
 
-    .active {
-        background: #D1AC00;
-        color: #0C1618;
-        font-weight: 700;
-        border-color: #D1AC00;
-        box-shadow: 0 0 25px rgba(209, 172, 0, 0.3);
+    @media (prefers-reduced-motion: reduce) {
+        .nav-link, .nav-indicator, .nav-bloom {
+            transition: none !important;
+            animation: none !important;
+        }
     }
-
-    .grain-texture {
-        background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23n)"/%3E%3C/svg%3E');
-    }
-    </style>
+</style>
