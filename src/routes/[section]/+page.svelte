@@ -7,35 +7,80 @@
 </script>
 
 {#if section}
-    <ul class="flex flex-col relative">
+    <ul class="link-list">
         {#each section.links as link}
-            <li class="relative z-10">
+            <li class="link-item">
                 <a
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="group block border-t border-base-cream/10 py-6 first:border-t-0 first:pt-2 transition-all duration-500"
+                    class="link-row group"
                 >
-                    <div class="flex items-baseline justify-between gap-4">
-                        <span class="text-base font-semibold tracking-[0.18em] uppercase text-base-cream/85 transition-colors duration-500 group-hover:text-accent-gold [text-shadow:0_0_15px_#0C1618,0_0_30px_#0C1618,0_0_45px_#0C1618]">
-                            {link.label}
-                        </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 -translate-x-3 text-accent-gold opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:opacity-100 drop-shadow-[0_0_8px_rgba(12,22,24,1)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="link-head">
+                        <span class="link-label">{link.label}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="link-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                     </div>
                     {#if 'description' in link && link.description}
-                        <p class="mt-2 text-sm font-light italic tracking-wide text-base-cream/50 transition-colors duration-500 group-hover:text-base-cream/70 [text-shadow:0_0_10px_#0C1618,0_0_20px_#0C1618,0_0_30px_#0C1618]">
-                            {link.description}
-                        </p>
+                        <p class="link-desc">{link.description}</p>
                     {/if}
                 </a>
             </li>
         {/each}
     </ul>
 {:else}
-    <div class="py-10">
-        <h2 class="mb-3 text-xl font-semibold">Section not found</h2>
-        <a href="/" class="text-sm uppercase tracking-[0.2em] text-accent-gold">Go back home</a>
+    <div class="not-found">
+        <h2 class="not-found-title">Section not found</h2>
+        <a href="/" class="not-found-link">Go back home</a>
     </div>
 {/if}
+
+<style lang="scss">
+    .link-list {
+        @apply flex flex-col relative;
+    }
+
+    .link-item {
+        @apply relative z-10;
+    }
+
+    .link-row {
+        @apply block border-t border-base-cream/10 py-6 transition-all duration-500;
+        @apply first:border-t-0 first:pt-0;
+    }
+
+    .link-head {
+        @apply flex items-baseline justify-between gap-4;
+    }
+
+    .link-label {
+        @apply text-base font-semibold tracking-[0.18em] uppercase text-base-cream/85 transition-colors duration-500;
+        @apply group-hover:text-accent-gold;
+        text-shadow: 0 0 15px #0C1618, 0 0 30px #0C1618, 0 0 45px #0C1618;
+    }
+
+    .link-arrow {
+        @apply h-4 w-4 shrink-0 -translate-x-3 text-accent-gold opacity-0 transition-all duration-500;
+        @apply group-hover:translate-x-0 group-hover:opacity-100;
+        filter: drop-shadow(0 0 8px rgba(12, 22, 24, 1));
+    }
+
+    .link-desc {
+        @apply mt-2 text-sm font-light italic tracking-wide text-base-cream/50 transition-colors duration-500;
+        @apply group-hover:text-base-cream/70;
+        text-shadow: 0 0 10px #0C1618, 0 0 20px #0C1618, 0 0 30px #0C1618;
+    }
+
+    .not-found {
+        @apply py-10;
+    }
+
+    .not-found-title {
+        @apply mb-3 text-xl font-semibold;
+    }
+
+    .not-found-link {
+        @apply text-sm uppercase tracking-[0.2em] text-accent-gold;
+    }
+</style>
