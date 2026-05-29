@@ -29,7 +29,7 @@ SHAPES = [
 # Six SIZE tiers (row counts). The frontend picks the tier whose grid, at roughly
 # the target font size, fills the actual viewport, so characters stay about the
 # same size across devices while the animation always fills the screen.
-SIZE_ROWS = [20, 30, 42, 58, 76, 96]
+SIZE_ROWS = [18, 27, 42, 38, 68, 86]
 
 
 def lerp(p1, p2, t):
@@ -50,10 +50,15 @@ def get_translation(t, aspect_ratio=1.0):
     stretch_x = max(1.0, aspect_ratio)
     stretch_y = max(1.0, 1.0 / aspect_ratio)
 
+    # Base resting position
     pos_center_close = (0.0, 0.0, 2.0)
-    # Apply stretches to the distant waypoints
-    pos_top_left_far = (-1.5 * stretch_x, 1.2 * stretch_y, 5.0)
-    pos_bot_left_mid = (-0.7 * stretch_x, -0.5 * stretch_y, 2.5)
+    
+    # Waypoints scaled down to 20% of their original drift distance
+    # Original X/Y were -1.5/1.2. Original Z drift was +3.0 (from 2.0 to 5.0).
+    pos_top_left_far = (-0.3 * stretch_x, 0.24 * stretch_y, 2.6)
+    
+    # Original X/Y were -0.7/-0.5. Original Z drift was +0.5 (from 2.0 to 2.5).
+    pos_bot_left_mid = (-0.14 * stretch_x, -0.1 * stretch_y, 2.1)
 
     if t < 0.333:
         local_t = t / 0.333
@@ -107,7 +112,7 @@ def _frame_geometry(t, base_triangles, light_dir, aspect_ratio=1.0):
     unit = np.zeros_like(normals)
     unit[safe] = normals[safe] / lengths[safe, None]
     illum = np.clip(unit @ light_dir, 0, None)
-    char_idx = np.clip((illum * n_palette).astype(int), 0, n_palette)
+    char_idx = np.clip(np.round(illum * n_palette).astype(int), 0, n_palette)
     facing = safe & (unit[:, 2] <= 0)
 
     zc = np.maximum(0.1, world[:, :, 2])
@@ -187,7 +192,7 @@ def render_frames(cols, rows, base_triangles, light_dir, ref, aspect_ratio):
 
     return frames
 
-def generate_animation():
+if __name__ == "__main__":
     print("Loading STL...")
     stl_mesh = mesh.Mesh.from_file(STL_FILE)
     base_triangles = normalize_mesh(stl_mesh.vectors)
@@ -211,7 +216,7 @@ def generate_animation():
             # 2. Compute reference bounding box for this specific ratio
             ref = compute_reference(base_triangles, light_dir, grid_aspect_ratio)
 
-            print(f"[{shape_idx+size_idx+1}/{len(SHAPES) * len(SIZE_ROWS)}] Rendering {name}: {cols}x{rows} ...")
+            print(f"[{shape_idx*len(SHAPES)+size_idx+1}/{len(SHAPES) * len(SIZE_ROWS)}] Rendering {name}: {cols}x{rows} ...")
             
             # 3. Pass it to the renderer
             frames = render_frames(cols, rows, base_triangles, light_dir, ref, grid_aspect_ratio)
@@ -232,6 +237,3 @@ def generate_animation():
         json.dump({"fps": 5, "frames": FRAMES, "variants": manifest}, fh)
 
     print(f"Done! {len(manifest)} variants written to {OUTPUT_DIR}/")
-
-if __name__ == "__main__":
-    generate_animation()
