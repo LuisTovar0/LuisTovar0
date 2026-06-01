@@ -10,26 +10,32 @@ OUTPUT_DIR = 'static/animation'           # One JSON file per variant lands here
 FRAMES = 18                               # Frames for a full drift cycle
 PALETTE = " .,-~:;=!*#$@"                 # Dark -> light shading ramp
 
-# A character cell is about half as wide as it is tall in a monospace font.
-CHAR_ASPECT = 0.5
+# Width of a monospace character cell relative to its height. Courier New (the
+# font the frontend renders with) has a 0.6em advance, so this value keeps every
+# grid truly square on screen: cols * CHAR_ASPECT == rows in pixels.
+CHAR_ASPECT = 0.6
 # Fraction of the limiting grid dimension the head's bounding box should occupy at
 # its largest (home) pose. <1 leaves a small breathing margin.
 FILL = 0.94
 
-# Six grid SHAPES, expressed as screen pixel aspect ratio (width / height).
-# These map to common device orientations from ultrawide down to a tall phone.
-SHAPES = [
-    ("ultrawide", 2.40),
-    ("wide", 1.78),
-    ("landscape", 1.33),
-    ("square", 1.00),
-    ("portrait", 0.66),
-    ("tall", 0.46),
+# Every animation is a square. We only vary the SIZE (row count); the frontend
+# picks the tier whose square, at roughly the target font size, fills the shorter
+# side of the viewport, so characters stay about the same size across devices.
+SIZE_ROWS = [18, 27, 38, 42, 68, 86]
+
+# The head drifts through these waypoints in order, then loops back to the first.
+# Each entry is (X, Y, Z), an absolute offset from the head's neutral center
+# (negative X = left, positive Y = up; Z is distance from the camera, larger =
+# farther/smaller). Every waypoint — including the first — literally moves and
+# zooms the head, so editing the first point shifts where the loop starts.
+# Add or remove tuples freely — time is divided evenly across all the segments.
+# The head is fit to the grid using the closest (smallest-Z) waypoint, so it never
+# overflows the square no matter how the loop drifts.
+WAYPOINTS = [
+    (0.1, -0.1, 1.7),
+    (0.6, 0.7, 3.2),
+    (-0.3, 0.1, 2.1),
 ]
-# Six SIZE tiers (row counts). The frontend picks the tier whose grid, at roughly
-# the target font size, fills the actual viewport, so characters stay about the
-# same size across devices while the animation always fills the screen.
-SIZE_ROWS = [18, 27, 42, 38, 68, 86]
 
 
 def lerp(p1, p2, t):
@@ -45,30 +51,19 @@ def ease_in_out(t):
 
 
 def get_translation(t, aspect_ratio=1.0):
-    """The (X, Y, Z) drift path, dynamically stretched to fit the aspect ratio."""
+    """The (X, Y, Z) drift path: loops through WAYPOINTS and back to the first,
+    eased, with X/Y stretched to fit the aspect ratio."""
     # If wide (aspect > 1), stretch X. If tall (aspect < 1), stretch Y.
     stretch_x = max(1.0, aspect_ratio)
     stretch_y = max(1.0, 1.0 / aspect_ratio)
+    pts = [(x * stretch_x, y * stretch_y, z) for (x, y, z) in WAYPOINTS]
 
-    # Base resting position
-    pos_center_close = (0.0, 0.0, 2.0)
-    
-    # Waypoints scaled down to 20% of their original drift distance
-    # Original X/Y were -1.5/1.2. Original Z drift was +3.0 (from 2.0 to 5.0).
-    pos_top_left_far = (-0.3 * stretch_x, 0.24 * stretch_y, 2.6)
-    
-    # Original X/Y were -0.7/-0.5. Original Z drift was +0.5 (from 2.0 to 2.5).
-    pos_bot_left_mid = (-0.14 * stretch_x, -0.1 * stretch_y, 2.1)
-
-    if t < 0.333:
-        local_t = t / 0.333
-        return lerp(pos_center_close, pos_top_left_far, ease_in_out(local_t))
-    elif t < 0.666:
-        local_t = (t - 0.333) / 0.333
-        return lerp(pos_top_left_far, pos_bot_left_mid, ease_in_out(local_t))
-    else:
-        local_t = (t - 0.666) / 0.334
-        return lerp(pos_bot_left_mid, pos_center_close, ease_in_out(local_t))
+    # Divide the [0, 1) cycle into one segment per waypoint; the final segment
+    # wraps from the last waypoint back to the first to close the loop.
+    n = len(pts)
+    seg = min(int(t * n), n - 1)
+    local_t = t * n - seg
+    return lerp(pts[seg], pts[(seg + 1) % n], ease_in_out(local_t))
 
 
 def normalize_mesh(triangles):
@@ -89,19 +84,23 @@ def get_rotation_matrix_x(angle):
     c, s = math.cos(angle), math.sin(angle)
     return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
-def _frame_geometry(t, base_triangles, light_dir, aspect_ratio=1.0):
+
+def _frame_geometry(t, base_triangles, light_dir, aspect_ratio=1.0, translation=None):
     n_palette = len(PALETTE) - 1
-    
+
     # Add a 15% phase shift so t=0 starts mid-tumble on both axes
-    phase = 0.15 
+    phase = 0.15
     angle_y = math.sin((t + phase) * 2 * math.pi) * math.radians(50)
     angle_x = math.radians(-10) - math.cos((t + phase) * 2 * math.pi) * math.radians(20)
-    
-    rot = np.dot(get_rotation_matrix_y(angle_y), get_rotation_matrix_x(angle_x))
-    tris = base_triangles @ rot.T                                          
 
-    # Pass aspect ratio down to the translation path
-    tx, ty, tz = get_translation(t, aspect_ratio)
+    rot = np.dot(get_rotation_matrix_y(angle_y), get_rotation_matrix_x(angle_x))
+    tris = base_triangles @ rot.T
+
+    # Use the drift path, unless an explicit translation is supplied (the reference
+    # pass pins the head to a neutral, drift-free center to measure its size there).
+    if translation is None:
+        translation = get_translation(t, aspect_ratio)
+    tx, ty, tz = translation
     world = tris + np.array([tx, ty, tz])
 
     e1 = tris[:, 1] - tris[:, 0]
@@ -123,8 +122,13 @@ def _frame_geometry(t, base_triangles, light_dir, aspect_ratio=1.0):
 
 
 def compute_reference(base_triangles, light_dir, aspect_ratio):
-    # Pass aspect_ratio to ensure bounding box fits the new adaptive start pose
-    facing, _, px, py, _ = _frame_geometry(0.0, base_triangles, light_dir, aspect_ratio)
+    # Measure the head at a neutral pose — zero X/Y drift, at the closest (largest)
+    # Z across the waypoints — so the fit never lets it exceed the grid and every
+    # waypoint (including the first) acts as a literal offset from this center.
+    z_ref = min(z for (_, _, z) in WAYPOINTS)
+    facing, _, px, py, _ = _frame_geometry(
+        0.0, base_triangles, light_dir, aspect_ratio, translation=(0.0, 0.0, z_ref)
+    )
     fx = px[facing]
     fy = py[facing]
     cx = (fx.max() + fx.min()) / 2
@@ -133,31 +137,37 @@ def compute_reference(base_triangles, light_dir, aspect_ratio):
     hh = (fy.max() - fy.min()) / 2
     return cx, cy, hw, hh
 
+
 def render_frames(cols, rows, base_triangles, light_dir, ref, aspect_ratio):
     cx0, cy0, hw, hh = ref
-    
-    # 1. Define your center offset (0.7 effectively means moving 20% to the right)
-    x_offset_pct = 0.7
-    
-    # 2. Calculate how much width is safely available without clipping into the wall.
-    # If centered at 0.7, the closest edge is 0.3 away. Max safe width is 0.6 (60%).
+
+    # Horizontal anchor for a waypoint at X=0: 0.5 centers it. Waypoint X
+    # offsets move the head left/right of this anchor.
+    x_offset_pct = 0.5
+
+    # How much width is available either side of the head's center without clipping
+    # into the nearer edge (here 0.35 away -> 0.7 of the width).
     safe_width_pct = min(x_offset_pct, 1.0 - x_offset_pct) * 2
-    
-    # 3. Apply safe_width_pct to the column constraint so it shrinks properly on tall screens
+
+    # Fit the head to whichever axis constrains it more. Both terms use `rows`
+    # (the grid is square: cols * CHAR_ASPECT ≈ rows) so k is exactly proportional
+    # to size and the head + its drift cover the same fraction of every variant.
     k = min(
-        rows * FILL / (2 * hh), 
-        cols * (FILL * safe_width_pct) * CHAR_ASPECT / (2 * hw)
+        rows * FILL / (2 * hh),
+        rows * (FILL * safe_width_pct) / (2 * hw)
     )
-    kx = k / CHAR_ASPECT 
+    kx = k / CHAR_ASPECT
     frames = []
 
     for f in range(FRAMES):
         t = f / FRAMES
         facing, char_idx, px, py, depth = _frame_geometry(t, base_triangles, light_dir, aspect_ratio)
 
-        # 4. Apply the offset dynamically based on our variable
-        xs = (cols * x_offset_pct + (px - cx0) * kx).astype(int)      
-        ys = (rows / 2 + (py - cy0) * k).astype(int)
+        # Anchor X=0 at x_offset_pct and Y=0 vertically centered; waypoint offsets
+        # (baked into px/py via the translation) move the head from there. Round
+        # (not truncate) so the head isn't biased up-left more on smaller grids.
+        xs = np.round(cols * x_offset_pct + (px - cx0) * kx).astype(int)
+        ys = np.round(rows / 2 + (py - cy0) * k).astype(int)
 
         z_buffer = np.full((rows, cols), -np.inf)
         screen = [[' '] * cols for _ in range(rows)]
@@ -204,36 +214,33 @@ if __name__ == "__main__":
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     manifest = []
+    keep_files = {"manifest.json"}
 
-    for shape_idx, (shape_name, pixel_aspect) in enumerate(SHAPES):
-        for size_idx, rows in enumerate(SIZE_ROWS):
-            cols = round(rows * pixel_aspect / CHAR_ASPECT)
-            name = f"{shape_name}_{size_idx}"
-            
-            # 1. Calculate the true grid aspect ratio
-            grid_aspect_ratio = (cols * CHAR_ASPECT) / rows
-            
-            # 2. Compute reference bounding box for this specific ratio
-            ref = compute_reference(base_triangles, light_dir, grid_aspect_ratio)
+    for size_idx, rows in enumerate(SIZE_ROWS):
+        # Square in screen pixels: cols * CHAR_ASPECT == rows.
+        cols = round(rows / CHAR_ASPECT)
+        name = f"square_{size_idx}"
+        file = f"{name}.json"
 
-            print(f"[{shape_idx*len(SHAPES)+size_idx+1}/{len(SHAPES) * len(SIZE_ROWS)}] Rendering {name}: {cols}x{rows} ...")
-            
-            # 3. Pass it to the renderer
-            frames = render_frames(cols, rows, base_triangles, light_dir, ref, grid_aspect_ratio)
-            
-            path = os.path.join(OUTPUT_DIR, f"{name}.json")
-            with open(path, 'w') as fh:
-                json.dump({"w": cols, "h": rows, "frames": frames}, fh)
-            manifest.append({
-                "name": name,
-                "shape": shape_name,
-                "pixelAspect": pixel_aspect,
-                "w": cols,
-                "h": rows,
-                "file": f"{name}.json",
-            })
+        # The grid is square by construction, so the drift path needs no aspect
+        # stretch — pass 1.0 so every size animates identically and only the
+        # rasterization resolution changes between variants.
+        ref = compute_reference(base_triangles, light_dir, 1.0)
+
+        print(f"[{size_idx + 1}/{len(SIZE_ROWS)}] Rendering {name}: {cols}x{rows} ...")
+        frames = render_frames(cols, rows, base_triangles, light_dir, ref, 1.0)
+
+        with open(os.path.join(OUTPUT_DIR, file), 'w') as fh:
+            json.dump({"w": cols, "h": rows, "frames": frames}, fh)
+        manifest.append({"name": name, "w": cols, "h": rows, "file": file})
+        keep_files.add(file)
+
+    # Remove stale variant files left over from previous (multi-shape) runs.
+    for fn in os.listdir(OUTPUT_DIR):
+        if fn.endswith(".json") and fn not in keep_files:
+            os.remove(os.path.join(OUTPUT_DIR, fn))
 
     with open(os.path.join(OUTPUT_DIR, "manifest.json"), 'w') as fh:
         json.dump({"fps": 5, "frames": FRAMES, "variants": manifest}, fh)
 
-    print(f"Done! {len(manifest)} variants written to {OUTPUT_DIR}/")
+    print(f"Done! {len(manifest)} square variants written to {OUTPUT_DIR}/")
