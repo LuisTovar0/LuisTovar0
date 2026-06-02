@@ -4,12 +4,12 @@
     type Manifest = {
         fps: number;
         frames: number;
-        variants: { name: string; shape: string; pixelAspect: number; w: number; h: number; file: string }[];
+        variants: { name: string; w: number; h: number; file: string }[];
     };
-    type VariantData = { w: number; h: number; frames: string[][]; pixelAspect: number };
+    type VariantData = { w: number; h: number; frames: string[][] };
 
     let manifest = $state<Manifest | null>(null);
-    let animations = $state<(VariantData & { name: string, shape: string })[]>([]);
+    let animations = $state<(VariantData & { name: string })[]>([]);
     let currentFrame = $state(0);
     let fontSize = $state(10);
     let reduceMotion = false;
@@ -27,7 +27,7 @@
                     manifest.variants.map(async (v) => {
                         const r = await fetch(`/animation/${v.file}`);
                         const data = await r.json();
-                        return { ...data, name: v.name, shape: v.shape, pixelAspect: v.pixelAspect };
+                        return { ...data, name: v.name };
                     })
                 );
                 animations = loaded;
@@ -75,14 +75,13 @@
                     <div class="anim-meta">
                         <h3 class="anim-name">{anim.name}</h3>
                         <div class="anim-stats">
-                            <span>Shape: {anim.shape}</span>
                             <span>Grid: {anim.w}x{anim.h}</span>
                             <span>Frames: {anim.frames.length}</span>
                         </div>
                     </div>
 
                     <div class="anim-stage">
-                        <div class="anim-frame" style="aspect-ratio: {anim.pixelAspect};">
+                        <div class="anim-frame">
                             <pre class="ascii" style="font-size: {fontSize}px;">{anim.frames[currentFrame % anim.frames.length].join('\n')}</pre>
                         </div>
                     </div>

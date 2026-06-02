@@ -4,7 +4,7 @@
     type Manifest = {
         fps: number;
         frames: number;
-        variants: { name: string; shape: string; pixelAspect: number; w: number; h: number; file: string }[];
+        variants: { name: string; w: number; h: number; file: string }[];
     };
     type VariantData = { w: number; h: number; frames: string[][] };
 
@@ -31,29 +31,18 @@
         lhRatio = probe.offsetHeight / 2 / 100;
     }
 
-    // Pick the shape closest to the viewport aspect, then the size tier whose
-    // fill font is nearest TARGET_PX. Returns the variant + the font size that
-    // makes it cover the viewport.
+    // All variants are square. The square is sized to the shorter side of the
+    // viewport (so it sits flush against the right edge in landscape or the bottom
+    // edge in portrait, see CSS), and we pick the tier whose fitting font is
+    // nearest TARGET_PX so characters stay about the same size everywhere.
     function choose() {
         if (!manifest) return null;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const viewAspect = vw / vh;
-
-        let bestShape = manifest.variants[0].shape;
-        let bestShapeDiff = Infinity;
-        for (const v of manifest.variants) {
-            const d = Math.abs(Math.log(v.pixelAspect / viewAspect));
-            if (d < bestShapeDiff) {
-                bestShapeDiff = d;
-                bestShape = v.shape;
-            }
-        }
+        const side = Math.min(window.innerWidth, window.innerHeight);
 
         let best = null as null | { v: Manifest['variants'][number]; font: number };
         for (const v of manifest.variants) {
-            if (v.shape !== bestShape) continue;
-            const font = Math.max(vw / (v.w * cwRatio), vh / (v.h * lhRatio));
+            // Font size that fits this square grid inside a side x side box.
+            const font = Math.min(side / (v.w * cwRatio), side / (v.h * lhRatio));
             if (!best || Math.abs(font - TARGET_PX) < Math.abs(best.font - TARGET_PX)) {
                 best = { v, font };
             }
@@ -127,9 +116,23 @@
         position: absolute;
         inset: 0;
         display: flex;
-        align-items: center;
-        justify-content: center;
         overflow: hidden;
+    }
+
+    /* Horizontal viewport: square sits flush against the right, vertically centered. */
+    @media (orientation: landscape) {
+        .anim-wrap {
+            align-items: center;
+            justify-content: flex-end;
+        }
+    }
+
+    /* Vertical viewport: square sits flush against the bottom, horizontally centered. */
+    @media (orientation: portrait) {
+        .anim-wrap {
+            align-items: flex-end;
+            justify-content: center;
+        }
     }
 
     .ascii {

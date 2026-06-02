@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from "$app/state";
     import linksData from "$lib/data/links.json";
+    import Icon from "$lib/components/Icon.svelte";
 
     const sectionId = $derived(page.params.section);
     const section = $derived(linksData.sections.find(s => s.id === sectionId));
@@ -18,9 +19,9 @@
                 >
                     <div class="link-head">
                         <span class="link-label">{link.label}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="link-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
+                        {#if 'icon' in link && link.icon}
+                            <Icon name={link.icon} className="link-icon" />
+                        {/if}
                     </div>
                     {#if 'description' in link && link.description}
                         <p class="link-desc">{link.description}</p>
@@ -54,20 +55,20 @@
         @apply flex items-baseline justify-between gap-4;
     }
 
+    :global(.link-icon) {
+        @apply h-4 w-4 opacity-70 transition-all duration-500 text-base-cream/85;
+        @apply group-hover:opacity-100 group-hover:text-accent-gold;
+        filter: drop-shadow(0 0 10px rgba(12, 22, 24, 0.5));
+    }
+
     .link-label {
-        @apply text-base font-semibold tracking-[0.18em] uppercase text-base-cream/85 transition-colors duration-500;
+        @apply text-fluid-base 3xl:text-fluid-base-hd font-semibold tracking-[0.18em] uppercase text-base-cream/85 transition-colors duration-500;
         @apply group-hover:text-accent-gold;
         text-shadow: 0 0 15px #0C1618, 0 0 30px #0C1618, 0 0 45px #0C1618;
     }
 
-    .link-arrow {
-        @apply h-4 w-4 shrink-0 -translate-x-3 text-accent-gold opacity-0 transition-all duration-500;
-        @apply group-hover:translate-x-0 group-hover:opacity-100;
-        filter: drop-shadow(0 0 8px rgba(12, 22, 24, 1));
-    }
-
     .link-desc {
-        @apply mt-2 text-sm font-light italic tracking-wide text-base-cream/50 transition-colors duration-500;
+        @apply mt-2 text-fluid-sm 3xl:text-fluid-sm-hd font-light italic tracking-wide text-base-cream/50 transition-colors duration-500;
         @apply group-hover:text-base-cream/70;
         text-shadow: 0 0 10px #0C1618, 0 0 20px #0C1618, 0 0 30px #0C1618;
     }
@@ -77,10 +78,10 @@
     }
 
     .not-found-title {
-        @apply mb-3 text-xl font-semibold;
+        @apply mb-3 text-fluid-lg 3xl:text-fluid-lg-hd font-semibold;
     }
 
     .not-found-link {
-        @apply text-sm uppercase tracking-[0.2em] text-accent-gold;
+        @apply text-fluid-sm 3xl:text-fluid-sm-hd uppercase tracking-[0.2em] text-accent-gold;
     }
 </style>

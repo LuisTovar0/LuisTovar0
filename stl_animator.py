@@ -21,7 +21,7 @@ FILL = 0.94
 # Every animation is a square. We only vary the SIZE (row count); the frontend
 # picks the tier whose square, at roughly the target font size, fills the shorter
 # side of the viewport, so characters stay about the same size across devices.
-SIZE_ROWS = [18, 27, 38, 42, 68, 86]
+SIZE_ROWS = [34, 38, 61, 77]
 
 # The head drifts through these waypoints in order, then loops back to the first.
 # Each entry is (X, Y, Z), an absolute offset from the head's neutral center

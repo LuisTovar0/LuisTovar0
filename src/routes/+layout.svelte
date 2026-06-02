@@ -39,7 +39,6 @@
 </script>
 
 <div class="app-shell selection-gold">
-    <!-- Background: Animation is a subtle quirk behind liquid glass -->
     <div class="bg-layer">
         <div class="bg-radial bg-gradient-radial"></div>
         {#if page.url.pathname !== '/animations'}
@@ -51,48 +50,46 @@
         <div class="grain-texture"></div>
     </div>
 
-    <!-- Asymmetric Editorial Layout -->
     <div class="scroll-area no-scrollbar">
         {#if page.url.pathname === '/animations'}
             <main class="animations-main">
                 {@render children?.()}
             </main>
         {:else}
-        <div class="editorial-container">
-            <div class="editorial-grid">
+            <div class="editorial-container">
+                <div class="editorial-grid">
+                    <h1 class="area-title" class:neon-text={hasNeon}>
+                        <span>Luís<br/>Tovar</span>
+                    </h1>
 
-                <h1 class="area-title" class:neon-text={hasNeon}>
-                    Luís<br/> Tovar
-                </h1>
+                    <header class="area-nav">
+                        <nav class="nav-list">
+                            {#each sections as section, i}
+                                {@const isActive = page.url.pathname === `/${section.id}`}
+                                <a
+                                    href="/{section.id}"
+                                    class="nav-link group"
+                                    class:nav-active={isActive}
+                                    style="animation: nav-item-reveal 0.8s var(--easing-expo) {i * 0.1}s both"
+                                >
+                                    <span class="nav-indicator hidden xl:block"></span>
+                                    <span class="nav-text" class:neon-text={isActive && hasNeon}>{section.label}</span>
+                                    <span class="nav-rule xl:hidden"></span>
+                                </a>
+                            {/each}
+                        </nav>
+                    </header>
 
-                <header class="area-nav">
-                    <nav class="nav-list">
-                        {#each sections as section, i}
-                            {@const isActive = page.url.pathname === `/${section.id}`}
-                            <a
-                                href="/{section.id}"
-                                class="nav-link group"
-                                class:nav-active={isActive}
-                                style="animation: nav-item-reveal 0.8s var(--easing-expo) {i * 0.1}s both"
-                            >
-                                <span class="nav-indicator hidden xl:block"></span>
-                                <span class="nav-text" class:neon-text={isActive && hasNeon}>{section.label}</span>
-                                <span class="nav-rule xl:hidden"></span>
-                            </a>
-                        {/each}
-                    </nav>
-                </header>
+                    <main class="area-links">
+                        {@render children?.()}
+                    </main>
 
-                <main class="area-links">
-                    {@render children?.()}
-                </main>
-
-                <div class="area-controls">
-                    <button type="button" class="control-btn">Lang</button>
-                    <button type="button" class="control-btn">Dark Mode</button>
+                    <div class="area-controls">
+                        <button type="button" class="control-btn">Lang</button>
+                        <button type="button" class="control-btn">Dark Mode</button>
+                    </div>
                 </div>
             </div>
-        </div>
         {/if}
     </div>
 </div>
@@ -136,30 +133,52 @@
         @apply sm:px-12;
         @apply lg:px-24;
         @apply xl:h-full;
+        /* xl+ (landscape, where the StlAnimation square sits flush-right): drop the
+           auto-centering and bias the whole composition left so the animation owns the
+           right of the frame. mr stays auto while a fluid left margin grows from 0 near
+           the xl breakpoint to ~11rem on 4K, settling the visual mass around the left
+           third. The px gutter is kept so the title never touches the bezel. */
+        @apply xl:ml-[clamp(0rem,-8rem_+_8vw,11rem)] xl:mr-auto;
+        /* Big monitors: widen the left-anchored island so the whole composition scales up (1280px -> 1760px) */
+        @apply 3xl:max-w-[clamp(1280px,800px_+_25vw,1760px)];
     }
 
     .editorial-grid {
-        @apply grid grid-cols-1 pt-12 z-20 flex-1;
+        @apply grid grid-cols-1 grid-rows-[auto_auto_1fr_auto] pt-12 z-20 flex-1;
         @apply xl:grid-cols-2 xl:grid-rows-2 xl:items-start xl:gap-y-16 xl:gap-x-40 xl:p-0;
+        /* Widen the column gap to match the larger composition on big monitors (10rem -> 12rem) */
+        @apply 3xl:gap-x-[clamp(10rem,8rem_+_1.67vw,12rem)];
     }
 
     .area-title {
-        @apply text-center text-[clamp(3.5rem,15vw,10rem)] leading-[0.85] mb-8 pointer-events-none;
+        /* Size tracks viewport HEIGHT (~18.7vh), not width: across every target
+           device the ideal size is a near-constant fraction of height, so a short
+           1280x680 laptop and a 375x667 phone both land ~128px while tall tablets
+           reach ~256px. `min(.,42vw)` only engages on very narrow viewports to stop
+           overflow; the rem floor/ceiling bound the extremes and keep browser zoom
+           working at the ends (WCAG 1.4.4). One unified clamp replaces the old vw
+           ramp, so the 3xl width tier is no longer needed. */
+        font-size: clamp(7rem /* 112px */,min(18.7vh,42vw),16rem /* 256px */);
+        @apply flex justify-start leading-[0.85] mb-10 pointer-events-none;
         @apply xl:col-start-1 xl:row-start-1 xl:place-self-end xl:text-right xl:mb-0;
     }
 
     .area-nav {
-        @apply z-40 flex justify-center mb-10;
+        @apply z-40 flex justify-start mb-10;
         @apply xl:col-start-2 xl:row-start-1 xl:place-self-end xl:justify-self-start xl:sticky xl:top-[10vh] xl:pt-2 xl:block xl:mb-0;
     }
 
     .area-links {
-        @apply w-full max-w-xl mx-auto flex-1 py-2;
-        @apply xl:col-start-2 xl:row-start-2 xl:place-self-start xl:mx-0 xl:py-0;
+        /* Single-column (mobile/tablet): left-aligned to the gutter so the link block
+           shares one common left edge with the title, nav and controls. */
+        @apply w-[22rem] max-w-xl flex-1 py-2;
+        @apply xl:col-start-2 xl:row-start-2 xl:place-self-start xl:py-0;
+        /* Let the links column widen with the rest of the composition (36rem -> 44rem) */
+        @apply 3xl:max-w-[clamp(36rem,28rem_+_6.67vw,44rem)];
     }
 
     .area-controls {
-        @apply flex justify-center gap-3 py-10 mt-auto;
+        @apply flex justify-start gap-3 py-10 mt-auto;
         @apply xl:col-start-1 xl:row-start-2 xl:place-self-start xl:justify-self-end xl:justify-end xl:py-0 xl:mt-0;
     }
 
@@ -171,7 +190,7 @@
     }
 
     .nav-link {
-        @apply flex items-center justify-center relative text-[0.7rem] font-semibold tracking-[0.25em] uppercase text-base-cream/30 whitespace-nowrap no-underline py-2 px-1 cursor-pointer;
+        @apply flex items-center justify-center relative text-fluid-xs 3xl:text-fluid-xs-hd font-semibold tracking-[0.25em] uppercase text-base-cream/30 whitespace-nowrap no-underline py-2 px-1 cursor-pointer;
         @apply xl:justify-start xl:px-0;
         transition: all 0.7s var(--easing-expo);
         
@@ -186,8 +205,15 @@
     }
 
     .control-btn {
-        @apply text-[0.65rem] font-medium tracking-[0.2em] uppercase text-base-cream/40 whitespace-nowrap py-2 px-4 rounded-full border border-base-cream/10 bg-base-dark/30 backdrop-blur-xl cursor-pointer;
+        @apply text-fluid-xs 3xl:text-fluid-xs-hd font-medium tracking-[0.2em] uppercase text-base-cream/40 whitespace-nowrap py-2 px-4 rounded-full border border-base-cream/10 bg-base-dark/30 backdrop-blur-xl cursor-pointer;
         transition: color 0.5s var(--easing-expo), border-color 0.5s var(--easing-expo);
+    }
+
+    /* Buttons grow their padding alongside the type on QHD/4K so they don't look pinched */
+    @media (min-width: 1920px) {
+        .control-btn {
+            padding: clamp(0.5rem, 0.3rem + 0.17vw, 0.7rem) clamp(1rem, 0.5rem + 0.42vw, 1.5rem);
+        }
     }
 
     @media (hover: hover) {

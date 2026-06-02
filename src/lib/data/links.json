@@ -6,11 +6,28 @@
       "links": [
         {
           "label": "Spotify",
-          "url": "https://open.spotify.com/user/lmbt2000?si=9109430a05744a2e"
+          "url": "https://open.spotify.com/user/lmbt2000?si=9109430a05744a2e",
+          "icon": "spotify"
         },
         {
           "label": "Climbing schedule",
-          "url": "https://whatsapp.com/channel/0029VbCUN0nL2ATtkgsVfN46"
+          "url": "https://whatsapp.com/channel/0029VbCUN0nL2ATtkgsVfN46",
+          "icon": "broadcast"
+        },
+        {
+          "label": "YT Music",
+          "url": "https://www.youtube.com/playlist?list=PLbmRsRHldjWY8qdHklUYnhUuJlMIQYMGR",
+          "icon": "youtube"
+        },
+        {
+          "label": "Guitar playing",
+          "url": "https://t.me/soundedbetterinmyhead",
+          "icon": "broadcast"
+        },
+        {
+          "label": "World Cube Association profile",
+          "url": "https://www.worldcubeassociation.org/persons/2016TOVA01",
+          "icon": "cubing"
         }
       ]
     },
@@ -19,35 +36,15 @@
       "label": "Professional",
       "links": [
         {
-          "label": "Portfolio",
-          "url": "https://luistovar.com",
-          "description": "My latest work and projects"
-        },
-        {
           "label": "LinkedIn",
-          "url": "https://linkedin.com/in/luistovar",
-          "description": "Professional network and experience"
+          "url": "https://linkedin.com/in/luis--tovar",
+          "icon": "linkedin"
         },
         {
           "label": "GitHub",
-          "url": "https://github.com/luistovar",
-          "description": "Open source contributions"
-        }
-      ]
-    },
-    {
-      "id": "contact",
-      "label": "Contact",
-      "links": [
-        {
-          "label": "Email",
-          "url": "mailto:hello@luistovar.com",
-          "description": "Get in touch directly"
-        },
-        {
-          "label": "Book a Meeting",
-          "url": "https://calendly.com/luistovar",
-          "description": "Schedule a 15-minute sync"
+          "url": "https://github.com/LuisTovar0",
+          "description": "(has this site's source code)",
+          "icon": "github"
         }
       ]
     }
