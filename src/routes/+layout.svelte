@@ -12,8 +12,28 @@
     let { children }: Props = $props();
 
     let hasNeon = $state(true);
+    let isLight = $state(false);
+    let mounted = $state(false);
 
     onMount(() => {
+        // Theme initialization
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'light') {
+            isLight = true;
+        } else {
+            isLight = false;
+        }
+
+        mounted = true;
+    });
+
+    $effect(() => {
+        if (!mounted || isLight) {
+            hasNeon = false;
+            return;
+        }
+
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         
         if (!prefersReducedMotion) {
@@ -32,8 +52,24 @@
                 clearInterval(flickerInterval);
                 clearTimeout(initialFlicker);
             };
+        } else {
+            hasNeon = true;
         }
     });
+
+    $effect(() => {
+        if (!mounted) return;
+
+        if (isLight) {
+            document.documentElement.classList.add('light');
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.documentElement.classList.remove('light');
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    const toggleTheme = () => isLight = !isLight;
 
     const sections = linksData.sections;
 </script>
@@ -41,7 +77,7 @@
 <div class="app-shell selection-gold">
     <div class="bg-layer">
         <div class="bg-radial bg-gradient-radial"></div>
-        {#if page.url.pathname !== '/animations'}
+        {#if page.url.pathname !== '/animations' && !isLight}
         <div class="bg-animation">
             <StlAnimation />
         </div>
@@ -86,7 +122,9 @@
 
                     <div class="area-controls">
                         <button type="button" class="control-btn">Lang</button>
-                        <button type="button" class="control-btn">Dark Mode</button>
+                        <button type="button" class="control-btn" onclick={toggleTheme}>
+                            {isLight ? 'Dark Mode' : 'Light Mode'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -97,13 +135,13 @@
 <style lang="scss">
     :root {
         --color-gold: oklch(74.6% 0.17 84.1);
-        --color-cream: oklch(96.7% 0.03 89.2);
         --easing-expo: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* --- Shell & background layers --- */
     .app-shell {
         @apply h-[100dvh] w-full bg-base-dark text-base-cream relative overflow-hidden;
+        transition: background-color 0.5s var(--easing-expo), color 0.5s var(--easing-expo);
     }
 
     .bg-layer {

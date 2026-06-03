@@ -141,8 +141,9 @@
         line-height: 1;
         white-space: pre;
         user-select: none;
-        color: #d1ac00;
-        text-shadow: 0 0 8px rgba(209, 172, 0, 0.45);
+        color: var(--color-accent, #d1ac00);
+        text-shadow: 0 0 8px var(--glow-secondary, rgba(209, 172, 0, 0.45));
+        transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .probe {

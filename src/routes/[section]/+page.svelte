@@ -56,21 +56,21 @@
     }
 
     :global(.link-icon) {
-        @apply h-4 w-4 opacity-70 transition-all duration-500 text-base-cream/85;
+        @apply h-4 w-4 opacity-70 transition-all duration-500 text-brand/85;
         @apply group-hover:opacity-100 group-hover:text-accent-gold;
-        filter: drop-shadow(0 0 10px rgba(12, 22, 24, 0.5));
+        filter: drop-shadow(0 0 10px var(--shadow-icon));
     }
 
     .link-label {
         @apply text-fluid-base 3xl:text-fluid-base-hd font-semibold tracking-[0.18em] uppercase text-base-cream/85 transition-colors duration-500;
         @apply group-hover:text-accent-gold;
-        text-shadow: 0 0 15px #0C1618, 0 0 30px #0C1618, 0 0 45px #0C1618;
+        text-shadow: 0 0 15px var(--shadow-bg), 0 0 30px var(--shadow-bg), 0 0 45px var(--shadow-bg);
     }
 
     .link-desc {
         @apply mt-2 text-fluid-sm 3xl:text-fluid-sm-hd font-light italic tracking-wide text-base-cream/50 transition-colors duration-500;
         @apply group-hover:text-base-cream/70;
-        text-shadow: 0 0 10px #0C1618, 0 0 20px #0C1618, 0 0 30px #0C1618;
+        text-shadow: 0 0 10px var(--shadow-bg), 0 0 20px var(--shadow-bg), 0 0 30px var(--shadow-bg);
     }
 
     .not-found {

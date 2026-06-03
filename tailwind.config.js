@@ -4,12 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'base-dark': '#0C1618',
-        'base-cream': '#faf4d3',
-        'accent-gold': '#D1AC00',
+        'brand': 'color-mix(in srgb, var(--color-brand), transparent calc(100% - <alpha-value> * 100%))',
+        'base-dark': 'color-mix(in srgb, var(--color-surface), transparent calc(100% - <alpha-value> * 100%))',
+        'base-cream': 'color-mix(in srgb, var(--color-ink), transparent calc(100% - <alpha-value> * 100%))',
+        'accent-gold': 'color-mix(in srgb, var(--color-accent), transparent calc(100% - <alpha-value> * 100%))',
         'accent-teal': {
-          DEFAULT: '#004643',
-          dark: '#002e2b',
+          DEFAULT: 'color-mix(in srgb, var(--color-atmosphere-1), transparent calc(100% - <alpha-value> * 100%))',
+          dark: 'color-mix(in srgb, var(--color-atmosphere-2), transparent calc(100% - <alpha-value> * 100%))',
         }
       },
       fontFamily: {
