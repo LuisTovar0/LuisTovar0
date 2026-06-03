@@ -60,11 +60,17 @@
 
         let data = cache.get(pick.v.file);
         if (!data) {
-            const res = await fetch(`/animation/${pick.v.file}`);
-            data = (await res.json()) as VariantData;
-            cache.set(pick.v.file, data);
+            try {
+                const res = await fetch(`/animation/${pick.v.file}`);
+                if (!res.ok) { loadedFile = ''; return; }
+                data = (await res.json()) as VariantData;
+                cache.set(pick.v.file, data);
+            } catch {
+                loadedFile = '';
+                return;
+            }
         }
-        if (loadedFile === pick.v.file) {
+        if (data && loadedFile === pick.v.file) {
             frames = data.frames;
             currentFrame = currentFrame % frames.length;
         }
@@ -75,14 +81,19 @@
         let timer: ReturnType<typeof setInterval> | undefined;
 
         (async () => {
-            const res = await fetch(`/animation/manifest.json`);
-            manifest = (await res.json()) as Manifest;
-            measureChar();
-            await apply();
-            if (!reduceMotion) {
-                timer = setInterval(() => {
-                    if (frames.length) currentFrame = (currentFrame + 1) % frames.length;
-                }, 1000 / (manifest.fps || 5));
+            try {
+                const res = await fetch(`/animation/manifest.json`);
+                if (!res.ok) return;
+                manifest = (await res.json()) as Manifest;
+                measureChar();
+                await apply();
+                if (!reduceMotion) {
+                    timer = setInterval(() => {
+                        if (frames.length) currentFrame = (currentFrame + 1) % frames.length;
+                    }, 1000 / (manifest.fps || 5));
+                }
+            } catch {
+                // animation is decorative; swallow fetch errors silently
             }
         })();
 

@@ -2,6 +2,8 @@
     import { page } from "$app/state";
     import linksData from "$lib/data/links.json";
     import Icon from "$lib/components/Icon.svelte";
+    import { locale, t } from "$lib/i18n";
+    import { ui } from "$lib/i18n/ui";
 
     const sectionId = $derived(page.params.section);
     const section = $derived(linksData.sections.find(s => s.id === sectionId));
@@ -18,13 +20,13 @@
                     class="link-row group"
                 >
                     <div class="link-head">
-                        <span class="link-label">{link.label}</span>
+                        <span class="link-label">{t(link.label, $locale)}</span>
                         {#if 'icon' in link && link.icon}
                             <Icon name={link.icon} className="link-icon" />
                         {/if}
                     </div>
                     {#if 'description' in link && link.description}
-                        <p class="link-desc">{link.description}</p>
+                        <p class="link-desc">{t(link.description, $locale)}</p>
                     {/if}
                 </a>
             </li>
@@ -32,8 +34,8 @@
     </ul>
 {:else}
     <div class="not-found">
-        <h2 class="not-found-title">Section not found</h2>
-        <a href="/" class="not-found-link">Go back home</a>
+        <h2 class="not-found-title">{ui('notFoundTitle', $locale)}</h2>
+        <a href="/" class="not-found-link">{ui('notFoundLink', $locale)}</a>
     </div>
 {/if}
 
@@ -47,8 +49,25 @@
     }
 
     .link-row {
-        @apply block border-t border-base-cream/10 py-6 transition-all duration-500;
-        @apply first:border-t-0 first:pt-0;
+        @apply block border-t border-base-cream/10 my-6 transition-all duration-500;
+        @apply first:border-t-0 first:mt-0;
+
+        &:focus-visible {
+            @apply outline-none rounded;
+            box-shadow: 0 0 0 2px var(--color-accent), 0 0 16px var(--glow-secondary);
+        }
+    }
+
+    .link-row:focus-visible .link-label {
+        @apply text-accent-gold;
+    }
+
+    .link-row:focus-visible .link-desc {
+        @apply text-base-cream/70;
+    }
+
+    :global(.link-row:focus-visible .link-icon) {
+        @apply opacity-100 text-accent-gold;
     }
 
     .link-head {

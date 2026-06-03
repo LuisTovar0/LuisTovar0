@@ -14,8 +14,11 @@ export default {
         }
       },
       fontFamily: {
-        serif: ['"Bodoni Moda"', 'serif'],
-        sans: ['Urbanist', 'sans-serif'],
+        serif: ['"Bodoni Moda Variable"', 'serif'],
+        // Urbanist Variable carries Latin; Gothic A1 is the Hangul fallback (Urbanist has
+        // no Korean glyphs) so Korean UI text renders in a matching geometric sans
+        // rather than a system default.
+        sans: ['Urbanist', '"Gothic A1"', 'sans-serif'],
       },
       // Custom breakpoint for large desktop monitors (QHD/4K). The base fluid
       // tokens plateau by ~1920px; the `3xl:` *-hd tokens take over above it.

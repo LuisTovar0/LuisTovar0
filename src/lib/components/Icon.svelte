@@ -2,16 +2,31 @@
     interface Props {
         name: string;
         className?: string;
+        /**
+         * Accessible name for the icon. When provided the icon is exposed to
+         * assistive tech as an image; when omitted it is treated as decorative
+         * (e.g. when it sits next to a visible text label).
+         */
+        label?: string;
     }
 
-    let { name, className = "" }: Props = $props();
+    let { name, className = "", label }: Props = $props();
 </script>
 
-<div
-    class="icon-base {className}"
-    style="--icon-url: url('/icons/{name}.svg')"
-    aria-hidden="true"
-></div>
+{#if label}
+    <div
+        class="icon-base {className}"
+        style="--icon-url: url('/icons/{name}.svg')"
+        role="img"
+        aria-label={label}
+    ></div>
+{:else}
+    <div
+        class="icon-base {className}"
+        style="--icon-url: url('/icons/{name}.svg')"
+        aria-hidden="true"
+    ></div>
+{/if}
 
 <style lang="scss">
     .icon-base {

@@ -3,5 +3,5 @@ import linksData from '$lib/data/links.json';
 
 export const load = () => {
     const firstSection = linksData.sections[0];
-    throw redirect(307, `/${firstSection.id}`);
+    throw redirect(308, `/${firstSection.id}`);
 };

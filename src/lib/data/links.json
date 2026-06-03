@@ -2,15 +2,24 @@
   "sections": [
     {
       "id": "social",
-      "label": "Social",
+      "label": { "en": "Stuff", "pt": "Coisas", "ko": "것" },
       "links": [
+        {
+          "label": "Instagram",
+          "url": "https://instagram.com/tovawr",
+          "icon": "instagram"
+        },
         {
           "label": "Spotify",
           "url": "https://open.spotify.com/user/lmbt2000?si=9109430a05744a2e",
           "icon": "spotify"
         },
         {
-          "label": "Climbing schedule",
+          "label": {
+            "en": "Climbing schedule",
+            "pt": "Calendário de escalada",
+            "ko": "클라이밍 일정"
+          },
           "url": "https://whatsapp.com/channel/0029VbCUN0nL2ATtkgsVfN46",
           "icon": "broadcast"
         },
@@ -20,20 +29,32 @@
           "icon": "youtube"
         },
         {
-          "label": "Guitar playing",
+          "label": {
+            "en": "Guitar playing",
+            "pt": "Guitarra",
+            "ko": "기타 연주"
+          },
+          "description": {
+            "en": "",
+            "pt": "eu toco guitarra",
+            "ko": ""
+          },
           "url": "https://t.me/soundedbetterinmyhead",
           "icon": "broadcast"
         },
         {
-          "label": "World Cube Association profile",
-          "url": "https://www.worldcubeassociation.org/persons/2016TOVA01",
-          "icon": "cubing"
+          "label": {
+            "en": "World Cube Association profile",
+            "pt": "Perfil no World Cube Association",
+            "ko": "세계 큐브 협회 프로필"
+          },
+          "url": "https://www.worldcubeassociation.org/persons/2016TOVA01"
         }
       ]
     },
     {
       "id": "professional",
-      "label": "Professional",
+      "label": { "en": "Professional", "pt": "Profissional", "ko": "커리어" },
       "links": [
         {
           "label": "LinkedIn",
@@ -43,7 +64,11 @@
         {
           "label": "GitHub",
           "url": "https://github.com/LuisTovar0",
-          "description": "(has this site's source code)",
+          "description": {
+            "en": "(has this site's source code)",
+            "pt": "(o código deste site está lá)",
+            "ko": "(이 사이트의 소스 코드 포함)"
+          },
           "icon": "github"
         }
       ]
