@@ -14,7 +14,7 @@ export default {
         }
       },
       fontFamily: {
-        serif: ['"Bodoni Moda Variable"', 'serif'],
+        serif: ['"Times New Roman"', 'Times', 'serif'],
         // Urbanist Variable carries Latin; Gothic A1 is the Hangul fallback (Urbanist has
         // no Korean glyphs) so Korean UI text renders in a matching geometric sans
         // rather than a system default.

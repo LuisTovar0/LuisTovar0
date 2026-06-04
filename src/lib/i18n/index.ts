@@ -1,10 +1,11 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-/** Supported locales. The first entry is the default / fallback. */
-export const locales = ['en', 'pt', 'ko'] as const;
+/** Supported locales. */
+export const locales = [ 'pt', 'en', 'ko' ] as const;
 export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = locales[0];
+/** The default / fallback locale. The site always starts in Portuguese. */
+export const defaultLocale: Locale = 'pt';
 
 /** Short label shown on the language switcher (until it becomes an icon). */
 export const localeLabels: Record<Locale, string> = {
@@ -27,44 +28,26 @@ export function t(value: Translatable | undefined | null, locale: Locale): strin
     return value[locale] ?? value[defaultLocale] ?? Object.values(value)[0] ?? '';
 }
 
-function isLocale(value: string | null): value is Locale {
-    return value != null && (locales as readonly string[]).includes(value);
-}
-
-function detectLocale(): Locale {
-    if (!browser) return defaultLocale;
-
-    const saved = localStorage.getItem('locale');
-    if (isLocale(saved)) return saved;
-
-    const nav = navigator.language?.slice(0, 2).toLowerCase() ?? '';
-    if (isLocale(nav)) return nav;
-
-    return defaultLocale;
-}
-
 export const locale = writable<Locale>(defaultLocale);
 
-// Persist + reflect onto <html lang>, but only after `initLocale()` has read the
-// saved value — otherwise the store's initial `defaultLocale` would overwrite it.
-let persist = false;
+// Reflect onto <html lang>, but only after `initLocale()` has run.
+let initialized = false;
 locale.subscribe((value) => {
-    if (!browser || !persist) return;
-    localStorage.setItem('locale', value);
+    if (!browser || !initialized) return;
     document.documentElement.lang = value;
 });
 
 /**
- * Resolve and apply the user's preferred locale. Call once from the browser
- * (e.g. in the root layout's `onMount`) so SSR and first paint stay on the
- * default locale and hydration matches.
+ * Reset the locale to the default (Portuguese) on every startup. There is no
+ * persistence or browser-language auto-detection: the site always starts in
+ * Portuguese and only switches when the visitor explicitly picks another
+ * language for the duration of the current session.
  */
 export function initLocale() {
     if (!browser) return;
-    const detected = detectLocale();
-    persist = true;
-    locale.set(detected);
-    document.documentElement.lang = detected;
+    initialized = true;
+    locale.set(defaultLocale);
+    document.documentElement.lang = defaultLocale;
 }
 
 /** Advance to the next locale in {@link locales}, wrapping around. */

@@ -1,8 +1,6 @@
 <script lang="ts">
-    import "@fontsource-variable/bodoni-moda/opsz-italic.css";
-    import "@fontsource/gothic-a1/300.css";
-    import "@fontsource/gothic-a1/500.css";
-    import "@fontsource/gothic-a1/600.css";
+    // Gothic A1 (Hangul fallback) is self-declared in app.scss with `size-adjust` so
+    // Korean glyphs render larger than Latin; see the @font-face block there.
     import "@fontsource/urbanist/300.css";
     import "@fontsource/urbanist/500.css";
     import "@fontsource/urbanist/600.css";
@@ -10,8 +8,9 @@
     import linksData from "$lib/data/links.json";
     import { page } from "$app/state";
     import StlAnimation from "$lib/components/StlAnimation.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { onMount } from "svelte";
+    import ThemeIcon from "$lib/components/ThemeIcon.svelte";
+    import Swap from "$lib/components/Swap.svelte";
+    import { onMount, tick } from "svelte";
     import { locale, t, initLocale, cycleLocale, localeLabels } from "$lib/i18n";
     import { ui } from "$lib/i18n/ui";
 
@@ -21,7 +20,6 @@
 
     let { children }: Props = $props();
 
-    let hasNeon = $state(false);
     let isLight = $state(false);
     let mounted = $state(false);
 
@@ -32,11 +30,11 @@
     let canScrollDown = $state(false);
 
     onMount(() => {
-      // Locale initialization (resolve saved/browser preference after first paint)
+      // Locale initialization (always starts in Portuguese on every visit)
       initLocale();
 
       // Theme initialization: honour a saved choice first, otherwise fall back to
-      // the OS/browser preference (mirroring how the locale falls back to navigator.language).
+      // the OS/browser preference.
       const savedTheme = localStorage.getItem('theme');
 
       if (savedTheme === 'light' || savedTheme === 'dark') {
@@ -70,37 +68,6 @@
     });
 
     $effect(() => {
-        if (!mounted || isLight) {
-            hasNeon = false;
-            return;
-        }
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        
-        if (!prefersReducedMotion) {
-            hasNeon = true;
-
-            const flip = () => hasNeon = !hasNeon;
-            const flicker = () => {
-                flip();
-                setTimeout(flip, 100);
-                setTimeout(flip, 160);
-                setTimeout(flip, 240);
-            };
-
-            const flickerInterval = setInterval(flicker, 5000);
-            const initialFlicker = setTimeout(flicker, 1000);
-
-            return () => {
-                clearInterval(flickerInterval);
-                clearTimeout(initialFlicker);
-            };
-        } else {
-            hasNeon = true;
-        }
-    });
-
-    $effect(() => {
         if (!mounted) return;
 
         if (isLight) {
@@ -112,10 +79,71 @@
         }
     });
 
-    const toggleTheme = () => isLight = !isLight;
+    const toggleTheme = () => {
+        isLight = !isLight;
+    };
 
     const sections = linksData.sections;
+
+    // Reflow on language change: labels change width and line-count (and Korean's
+    // taller glyphs change row heights), so the nav items AND the link rows would
+    // jump to new positions — the link list especially flickers as rows below a
+    // re-wrapped label snap up or down mid-crossfade. FLIP it: snapshot positions,
+    // let the new locale lay out, then glide each element from its old box to its
+    // new one via transform (no layout properties animated, so it stays cheap).
+    let navListEl: HTMLElement | undefined = $state();
+
+    const changeLanguage = async () => {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // The animated elements: nav links, plus each link row in the scroll area.
+        const items = [
+            ...(navListEl ? (Array.from(navListEl.children) as HTMLElement[]) : []),
+            ...(linksEl ? (Array.from(linksEl.querySelectorAll('.link-item')) as HTMLElement[]) : [])
+        ];
+
+        // Reduced motion (or nothing to measure): just switch. The labels' own
+        // crossfade is the gentle cue and the reflow snaps.
+        if (reduce || items.length === 0) {
+            cycleLocale();
+            return;
+        }
+
+        // Cancel any in-flight glide first so we measure true layout positions, not
+        // mid-animation transformed ones (rapid language clicks).
+        for (const el of items)
+            for (const a of el.getAnimations()) if (a.id === 'lang-flip') a.cancel();
+
+        const first = items.map((el) => el.getBoundingClientRect());
+        cycleLocale();
+        await tick();
+
+        for (let i = 0; i < items.length; i++) {
+            const last = items[i].getBoundingClientRect();
+            const dx = first[i].left - last.left;
+            const dy = first[i].top - last.top;
+            if (!dx && !dy) continue;
+            const anim = items[i].animate(
+                [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }],
+                { duration: 420, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+            );
+            anim.id = 'lang-flip';
+        }
+    };
 </script>
+
+<svelte:head>
+    <meta name="description" content="Personal website of Luís Tovar" />
+    <meta property="og:title" content="Luís Tovar" />
+    <meta property="og:description" content="Personal website of Luís Tovar" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={page.url.href} />
+    <meta property="og:image" content="{page.url.origin}/screenshot.png" />
+    <meta property="og:image:alt" content="Luís Tovar's personal website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Luís Tovar" />
+    <meta name="twitter:description" content="Personal website of Luís Tovar" />
+    <meta name="twitter:image" content="{page.url.origin}/screenshot.png" />
+</svelte:head>
 
 <div class="app-shell selection-gold">
     <div class="bg-layer">
@@ -139,12 +167,12 @@
                 <div class="editorial-grid">
                     <!-- The wordmark is a fixed proper noun; pin its lang so its font
                          selection never follows the UI locale (e.g. into a Korean serif). -->
-                    <h1 class="area-title" lang="pt" class:neon-text={hasNeon}>
+                    <h1 class="area-title neon-text" lang="en">
                         <span>Luís<br/>Tovar</span>
                     </h1>
 
                     <header class="area-nav">
-                        <nav class="nav-list">
+                        <nav class="nav-list" bind:this={navListEl}>
                             {#each sections as section, i}
                                 {@const isActive = page.url.pathname === `/${section.id}`}
                                 <a
@@ -154,7 +182,9 @@
                                     style="animation: nav-item-reveal 0.8s var(--easing-expo) {i * 0.1}s both"
                                 >
                                     <span class="nav-indicator hidden xl:block"></span>
-                                    <span class="nav-text" class:neon-text={isActive && hasNeon}>{t(section.label, $locale)}</span>
+                                    <span class="nav-text" class:neon-text={isActive}>
+                                        <Swap text={t(section.label, $locale)} delay={i * 45} />
+                                    </span>
                                     <span class="nav-rule xl:hidden"></span>
                                 </a>
                             {/each}
@@ -174,11 +204,11 @@
                     <div class="area-controls">
                         <button
                             type="button"
-                            class="control-btn"
-                            onclick={cycleLocale}
+                            class="control-btn control-btn--lang"
+                            onclick={changeLanguage}
                             aria-label={ui('language_a11y', $locale)}
                         >
-                            {localeLabels[$locale]}
+                            <Swap text={localeLabels[$locale]} />
                         </button>
                         <button
                             type="button"
@@ -186,7 +216,7 @@
                             onclick={toggleTheme}
                             aria-label={isLight ? ui('theme_a11y_toDark', $locale) : ui('theme_a11y_toLight', $locale)}
                         >
-                            <Icon name={isLight ? 'moon' : 'sun'} className="control-icon" />
+                            <ThemeIcon {isLight} className="control-icon" />
                         </button>
                     </div>
                 </div>
@@ -333,7 +363,7 @@
         @apply flex items-center justify-center relative text-fluid-xs 3xl:text-fluid-xs-hd font-semibold tracking-[0.25em] uppercase text-base-cream/30 whitespace-nowrap no-underline py-2 px-1 cursor-pointer;
         @apply xl:justify-start xl:px-0;
         transition: all 0.7s var(--easing-expo);
-        
+
         &.nav-active {
             @apply text-base-cream;
         }
@@ -345,13 +375,14 @@
     }
 
     .control-btn {
-        @apply text-fluid-xs 3xl:text-fluid-xs-hd font-medium tracking-[0.1em] uppercase text-base-cream/55 rounded-full border border-base-cream/10 bg-base-dark/30 backdrop-blur-xl cursor-pointer;
+        @apply text-fluid-sm 3xl:text-fluid-sm-hd font-bold tracking-[0.08em] uppercase text-base-cream/55 rounded-full border border-base-cream/10 bg-base-dark/30 backdrop-blur-xl cursor-pointer;
         /* Round (circular) controls: a fixed square box with centered content.
            44px keeps the touch target at the WCAG 2.5.8 minimum. */
         @apply inline-flex items-center justify-center w-11 h-11 p-0;
         transition: color 0.5s var(--easing-expo), border-color 0.5s var(--easing-expo),
             background-color 0.5s var(--easing-expo), box-shadow 0.5s var(--easing-expo);
     }
+
 
     /* Light mode flips --color-ink to a dark teal, so the alpha that reads as a
        quiet ~5:1 on the dark surface drops below AA on porcelain. The resting
@@ -361,7 +392,7 @@
     }
 
     .control-btn :global(.control-icon) {
-        @apply w-[1.2em] h-[1.2em];
+        @apply w-[1.55em] h-[1.55em];
     }
 
     /* Buttons grow alongside the type on QHD/4K so they don't look pinched */

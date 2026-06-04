@@ -1,3 +1,42 @@
+/* Gothic A1 is the Hangul fallback in the `sans` stack (Urbanist carries Latin and
+   has no Korean glyphs). Korean (한글) glyphs read smaller than Latin at the same
+   point size, so we self-declare the face with `size-adjust` to render Hangul ~15%
+   larger. Scoped to the Hangul `unicode-range`, this scales ONLY Korean glyphs —
+   Latin always renders via Urbanist, untouched — and applies in any locale, so no
+   per-locale font-size scaling is needed. Replaces the `@fontsource/gothic-a1/*.css`
+   imports (which split Korean across dozens of subset faces we can't add size-adjust to).
+   Weights mirror the Urbanist set used in the UI: 300 / 500 / 600. */
+@font-face {
+    font-family: 'Gothic A1';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    size-adjust: 115%;
+    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff2') format('woff2'),
+         url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff') format('woff');
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+}
+@font-face {
+    font-family: 'Gothic A1';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    size-adjust: 115%;
+    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff2') format('woff2'),
+         url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff') format('woff');
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+}
+@font-face {
+    font-family: 'Gothic A1';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    size-adjust: 115%;
+    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff2') format('woff2'),
+         url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff') format('woff');
+    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -51,7 +90,7 @@
     }
 
     h1 {
-        @apply font-serif italic font-normal tracking-tighter;
+        @apply font-serif italic font-normal tracking-[-0.03em];
         color: var(--color-brand);
         text-shadow:
             0 0 20px var(--shadow-bg),
@@ -86,15 +125,41 @@
     .neon-text {
         @apply transition-all duration-75;
         color: var(--color-brand);
-        text-shadow:
-            0 0 2px var(--glow-color),
-            0 0 5px var(--glow-secondary),
-            0 0 10px var(--glow-secondary),
-            0 0 20px var(--glow-secondary),
-            0 0 30px var(--glow-secondary),
-            0 0 50px var(--glow-secondary),
-            0 0 20px var(--shadow-bg),
-            0 0 40px var(--shadow-bg);
+        text-shadow: none;
+
+        /* Dark mode: always glowing, with an idle flicker. */
+        :root:not(.light) & {
+            text-shadow:
+                0 0 2px var(--glow-color),
+                0 0 5px var(--glow-secondary),
+                0 0 10px var(--glow-secondary),
+                0 0 20px var(--glow-secondary),
+                0 0 30px var(--glow-secondary),
+                0 0 50px var(--glow-secondary),
+                0 0 20px var(--shadow-bg),
+                0 0 40px var(--shadow-bg);
+
+            @media (prefers-reduced-motion: no-preference) {
+                animation: neon-idle-flicker 5s infinite;
+            }
+        }
+    }
+
+    @keyframes neon-idle-flicker {
+        0%, 94%, 96%, 98.4%, 100% {
+            text-shadow:
+                0 0 2px var(--glow-color),
+                0 0 5px var(--glow-secondary),
+                0 0 10px var(--glow-secondary),
+                0 0 20px var(--glow-secondary),
+                0 0 30px var(--glow-secondary),
+                0 0 50px var(--glow-secondary),
+                0 0 20px var(--shadow-bg),
+                0 0 40px var(--shadow-bg);
+        }
+        95%, 97.4% {
+            text-shadow: none;
+        }
     }
 
     .selection-gold {

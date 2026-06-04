@@ -31,7 +31,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@fontsource-variable/bodoni-moda": "^5.2.7",
     "@fontsource/gothic-a1": "^5.2.8",
     "@fontsource/urbanist": "^5.2.7"
   }

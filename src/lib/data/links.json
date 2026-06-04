@@ -1,14 +1,9 @@
 {
   "sections": [
     {
-      "id": "social",
+      "id": "stuff",
       "label": { "en": "Stuff", "pt": "Coisas", "ko": "것" },
       "links": [
-        {
-          "label": "Instagram",
-          "url": "https://instagram.com/tovawr",
-          "icon": "instagram"
-        },
         {
           "label": "Spotify",
           "url": "https://open.spotify.com/user/lmbt2000?si=9109430a05744a2e",

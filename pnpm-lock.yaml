@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@fontsource-variable/bodoni-moda':
-        specifier: ^5.2.7
-        version: 5.2.7
       '@fontsource/gothic-a1':
         specifier: ^5.2.8
         version: 5.2.8
@@ -270,9 +267,6 @@ packages:
   '@eslint/plugin-kit@0.7.2':
     resolution: {integrity: sha512-+CNAzxglkrpNf/kKywqQfk74QjtceuOE7Qm+AF8miRvPF/wmmK5+OJOgVh3AVTT3RP2mH3+FOaxlE5v72owk0A==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
-
-  '@fontsource-variable/bodoni-moda@5.2.7':
-    resolution: {integrity: sha512-GZo4yqbmS/72On15EcAcKHjYfPbWCPKh4AlkVp8OP2pcGMD+XGoXVuNPEPFgaAfMJpcsa2fsJj/BvQby0gH7Eg==}
 
   '@fontsource/gothic-a1@5.2.8':
     resolution: {integrity: sha512-TGkEbNiU3BVy6KtEPHvwAl77eMRkElCVwO2V+1lvjBcvVwRvI47sGRW1+9Ylg2jS1Bocl6kNcDXUHKrntgHnZQ==}
@@ -1879,8 +1873,6 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
-
-  '@fontsource-variable/bodoni-moda@5.2.7': {}
 
   '@fontsource/gothic-a1@5.2.8': {}
 
