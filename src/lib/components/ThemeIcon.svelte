@@ -1,11 +1,9 @@
 <script lang="ts">
     interface Props {
-        /** true → moon (the page is light); false → sun (the page is dark). */
-        isLight: boolean;
         className?: string;
     }
 
-    let { isLight, className = "" }: Props = $props();
+    let { className = "" }: Props = $props();
 
     // A single SVG can't tween between two mask images, so the sun and moon are
     // one shape that morphs: the disc stays, a shadow circle slides across to
@@ -16,7 +14,6 @@
 
 <svg
     class="theme-icon {className}"
-    class:is-moon={isLight}
     viewBox="0 0 24 24"
     fill="none"
     aria-hidden="true"
@@ -26,7 +23,7 @@
         <!-- The shadow that bites the crescent. Larger than the disc so the inner
              edge is a graceful flat arc, not a deep notch. Parked up-right for the
              sun (no overlap → full disc); slid over the disc for the moon. -->
-        <circle class="cutout" cx="19" cy="7" r="7" fill="black" />
+        <circle class="cutout" cx="16" cy="9" r="6" fill="black" />
     </mask>
 
     <!-- Sun rays: retract and spin away as the moon takes over. -->
@@ -53,41 +50,60 @@
     }
 
     .cutout,
-    .rays {
+    .rays,
+    .disc {
         --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
         transform-box: fill-box;
         transform-origin: center;
     }
 
-    /* Shadow circle: parked out of frame for the sun (full disc shows), slid
-       home over the disc for the moon to carve the crescent. */
-    .cutout {
-        transform: translate(8px, -8px);
+    /* The icon's state is driven entirely by the `.light` class on <html>, which
+       app.html's inline script sets *before first paint*. That makes the symbol
+       correct on the very first frame with no JS, so there's no hydration swap
+       (the old reactive `isLight` prop only resolved after hydration, which is
+       what caused the moon→sun flicker on a light-mode load).
+
+       Default (dark page) = moon: the shadow sits over the disc carving the
+       crescent, the disc is full size, and the rays are retracted. */
+    .disc {
+        transform: scale(1);
         transition: transform 0.55s var(--ease-out-expo);
     }
 
-    /* Rays: full bloom for the sun; scaled to nothing and spun off for the moon.
-       Slightly quicker than the carve so they're gone before the crescent reads. */
+    .cutout {
+        transform: translate(0, 0);
+        transition: transform 0.55s var(--ease-out-expo);
+    }
+
     .rays {
+        opacity: 0;
+        transform: rotate(-45deg) scale(0.4);
         transition:
             transform 0.45s var(--ease-out-expo),
             opacity 0.35s var(--ease-out-expo);
     }
 
-    .theme-icon.is-moon {
+    /* Light page = sun: park the shadow off the disc (full disc shows), bloom the
+       rays, and shrink the disc a touch so the sun's footprint matches the moon's
+       (the full circle reads a little large without the crescent's bite). */
+    :global(html.light) {
+        .disc {
+            transform: scale(0.66);
+        }
         .cutout {
-            transform: translate(0, 0);
+            transform: translate(8px, -8px);
         }
         .rays {
-            opacity: 0;
-            transform: rotate(-45deg) scale(0.4);
+            opacity: 1;
+            transform: scale(0.7);
         }
     }
 
     /* State stays correct without the tween: instant swap, no animation. */
     @media (prefers-reduced-motion: reduce) {
         .cutout,
-        .rays {
+        .rays,
+        .disc {
             transition: none;
         }
     }

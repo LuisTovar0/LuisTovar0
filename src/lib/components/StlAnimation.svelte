@@ -1,12 +1,20 @@
-<script lang="ts">
-    import { onMount } from 'svelte';
-
+<script module lang="ts">
     type Manifest = {
         fps: number;
         frames: number;
         variants: { name: string; w: number; h: number; file: string }[];
     };
     type VariantData = { w: number; h: number; frames: string[][] };
+
+    // Module-scoped so they survive component remounts (e.g. navigating to/from the
+    // /animations route, where this background layer isn't rendered). Keeping the
+    // manifest and parsed variant data here means we never re-fetch them.
+    let manifest: Manifest | null = null;
+    const cache = new Map<string, VariantData>();
+</script>
+
+<script lang="ts">
+    import { onMount } from 'svelte';
 
     // Roughly the character size we want on screen; variants are chosen so the
     // fill font lands near this, keeping characters about this size everywhere.
@@ -18,10 +26,8 @@
 
     let probe = $state<HTMLPreElement>();
 
-    let manifest: Manifest | null = null;
     let cwRatio = 0.6; // char width / font-size
     let lhRatio = 1.0; // line height / font-size
-    const cache = new Map<string, VariantData>();
     let loadedFile = '';
     let reduceMotion = false;
 
@@ -82,9 +88,11 @@
 
         (async () => {
             try {
-                const res = await fetch(`/animation/manifest.json`);
-                if (!res.ok) return;
-                manifest = (await res.json()) as Manifest;
+                if (!manifest) {
+                    const res = await fetch(`/animation/manifest.json`);
+                    if (!res.ok) return;
+                    manifest = (await res.json()) as Manifest;
+                }
                 measureChar();
                 await apply();
                 if (!reduceMotion) {

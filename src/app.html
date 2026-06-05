@@ -3,9 +3,16 @@
 	<head>
 		<meta charset="utf-8" />
 		<script>
+			// Resolve the theme before first paint (mirrors createLayoutState):
+			// saved choice wins, otherwise fall back to the OS preference. Adding
+			// `.light` here means both the page colors AND the theme icon render
+			// correct on the first frame — the icon's morph is keyed off this class.
 			(function () {
 				try {
-					if (localStorage.getItem('theme') === 'light') {
+					var saved = localStorage.getItem('theme');
+					var light = saved === 'light'
+						|| (saved !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+					if (light) {
 						document.documentElement.classList.add('light');
 					}
 				} catch (_) {}

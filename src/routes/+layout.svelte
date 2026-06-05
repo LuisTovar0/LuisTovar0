@@ -1,137 +1,27 @@
 <script lang="ts">
-    // Gothic A1 (Hangul fallback) is self-declared in app.scss with `size-adjust` so
-    // Korean glyphs render larger than Latin; see the @font-face block there.
-    import "@fontsource/urbanist/300.css";
-    import "@fontsource/urbanist/500.css";
-    import "@fontsource/urbanist/600.css";
-    import "../app.scss";
-    import linksData from "$lib/data/links.json";
+    import "./+layout.scss";
+    import { createLayoutState } from './layout.svelte.js';
     import { page } from "$app/state";
+    import { locale, t, localeLabels } from "$lib/i18n";
+    import { ui } from "$lib/i18n/ui";
     import StlAnimation from "$lib/components/StlAnimation.svelte";
     import ThemeIcon from "$lib/components/ThemeIcon.svelte";
     import Swap from "$lib/components/Swap.svelte";
-    import { onMount, tick } from "svelte";
-    import { locale, t, initLocale, cycleLocale, localeLabels } from "$lib/i18n";
-    import { ui } from "$lib/i18n/ui";
+    // Preload the Urbanist weights present at first paint (300 descriptions, 600 nav/labels).
+    // The @font-face rules ship in the JS-bundled CSS, so without this the font is only
+    // discovered after that CSS loads and `font-display: swap` flashes the fallback first.
+    // `?url` resolves to the same hashed asset the @font-face src points at; the SSR'd
+    // <link rel="preload"> below kicks the fetch off in the initial HTML instead.
+    import urbanist300 from "@fontsource/urbanist/files/urbanist-latin-300-normal.woff2?url";
+    import urbanist600 from "@fontsource/urbanist/files/urbanist-latin-600-normal.woff2?url";
 
-    interface Props {
-        children?: import('svelte').Snippet;
-    }
-
-    let { children }: Props = $props();
-
-    let isLight = $state(false);
-    let mounted = $state(false);
-
-    // Scroll affordance for the (only) scrollable region, .area-links: fade its top
-    // and/or bottom edge whenever there is more content to scroll that way.
-    let linksEl: HTMLElement | undefined = $state();
-    let canScrollUp = $state(false);
-    let canScrollDown = $state(false);
-
-    onMount(() => {
-      // Locale initialization (always starts in Portuguese on every visit)
-      initLocale();
-
-      // Theme initialization: honour a saved choice first, otherwise fall back to
-      // the OS/browser preference.
-      const savedTheme = localStorage.getItem('theme');
-
-      if (savedTheme === 'light' || savedTheme === 'dark') {
-        isLight = savedTheme === 'light';
-      } else {
-        isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      }
-
-      mounted = true;
-    });
-
-    const updateScrollFades = () => {
-      const el = linksEl;
-      if (!el) return;
-      canScrollUp = el.scrollTop > 1;
-      canScrollDown = Math.ceil(el.scrollTop + el.clientHeight) < el.scrollHeight - 1;
-    };
-
-    $effect(() => {
-        const el = linksEl;
-        if (!el) return;
-        // Re-measure when the content itself changes (route + locale switch link sets).
-        page.url.pathname;
-        $locale;
-
-        updateScrollFades();
-        const ro = new ResizeObserver(updateScrollFades);
-        ro.observe(el);
-        for (const child of el.children) ro.observe(child);
-        return () => ro.disconnect();
-    });
-
-    $effect(() => {
-        if (!mounted) return;
-
-        if (isLight) {
-            document.documentElement.classList.add('light');
-            localStorage.setItem('theme', 'light');
-        } else {
-            document.documentElement.classList.remove('light');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
-
-    const toggleTheme = () => {
-        isLight = !isLight;
-    };
-
-    const sections = linksData.sections;
-
-    // Reflow on language change: labels change width and line-count (and Korean's
-    // taller glyphs change row heights), so the nav items AND the link rows would
-    // jump to new positions — the link list especially flickers as rows below a
-    // re-wrapped label snap up or down mid-crossfade. FLIP it: snapshot positions,
-    // let the new locale lay out, then glide each element from its old box to its
-    // new one via transform (no layout properties animated, so it stays cheap).
-    let navListEl: HTMLElement | undefined = $state();
-
-    const changeLanguage = async () => {
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        // The animated elements: nav links, plus each link row in the scroll area.
-        const items = [
-            ...(navListEl ? (Array.from(navListEl.children) as HTMLElement[]) : []),
-            ...(linksEl ? (Array.from(linksEl.querySelectorAll('.link-item')) as HTMLElement[]) : [])
-        ];
-
-        // Reduced motion (or nothing to measure): just switch. The labels' own
-        // crossfade is the gentle cue and the reflow snaps.
-        if (reduce || items.length === 0) {
-            cycleLocale();
-            return;
-        }
-
-        // Cancel any in-flight glide first so we measure true layout positions, not
-        // mid-animation transformed ones (rapid language clicks).
-        for (const el of items)
-            for (const a of el.getAnimations()) if (a.id === 'lang-flip') a.cancel();
-
-        const first = items.map((el) => el.getBoundingClientRect());
-        cycleLocale();
-        await tick();
-
-        for (let i = 0; i < items.length; i++) {
-            const last = items[i].getBoundingClientRect();
-            const dx = first[i].left - last.left;
-            const dy = first[i].top - last.top;
-            if (!dx && !dy) continue;
-            const anim = items[i].animate(
-                [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }],
-                { duration: 420, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
-            );
-            anim.id = 'lang-flip';
-        }
-    };
+    const layout = createLayoutState();
+    let { children } = $props();
 </script>
 
 <svelte:head>
+    <link rel="preload" href={urbanist300} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href={urbanist600} as="font" type="font/woff2" crossorigin="anonymous" />
     <meta name="description" content="Personal website of Luís Tovar" />
     <meta property="og:title" content="Luís Tovar" />
     <meta property="og:description" content="Personal website of Luís Tovar" />
@@ -145,11 +35,13 @@
     <meta name="twitter:image" content="{page.url.origin}/screenshot.png" />
 </svelte:head>
 
-<div class="app-shell selection-gold">
+<div class="app-shell selection-gold" class:no-transitions={!layout.mounted}>
     <div class="bg-layer">
         <div class="bg-radial bg-gradient-radial"></div>
-        {#if page.url.pathname !== '/animations' && !isLight}
-        <div class="bg-animation">
+        {#if page.url.pathname !== '/animations'}
+        <!-- Kept mounted across theme toggles (hidden, not destroyed, in light mode)
+             so the data loads once at startup and the frame loop keeps advancing. -->
+        <div class="bg-animation" class:is-hidden={layout.isLight}>
             <StlAnimation />
         </div>
         {/if}
@@ -165,21 +57,18 @@
         {:else}
             <div class="editorial-container">
                 <div class="editorial-grid">
-                    <!-- The wordmark is a fixed proper noun; pin its lang so its font
-                         selection never follows the UI locale (e.g. into a Korean serif). -->
                     <h1 class="area-title neon-text" lang="en">
                         <span>Luís<br/>Tovar</span>
                     </h1>
 
                     <header class="area-nav">
-                        <nav class="nav-list" bind:this={navListEl}>
-                            {#each sections as section, i}
+                        <nav class="nav-list" bind:this={layout.navListEl}>
+                            {#each layout.sections as section, i}
                                 {@const isActive = page.url.pathname === `/${section.id}`}
                                 <a
                                     href="/{section.id}"
                                     class="nav-link group"
                                     class:nav-active={isActive}
-                                    style="animation: nav-item-reveal 0.8s var(--easing-expo) {i * 0.1}s both"
                                 >
                                     <span class="nav-indicator hidden xl:block"></span>
                                     <span class="nav-text" class:neon-text={isActive}>
@@ -193,19 +82,21 @@
 
                     <main
                         class="area-links no-scrollbar"
-                        class:fade-top={canScrollUp}
-                        class:fade-bottom={canScrollDown}
-                        bind:this={linksEl}
-                        onscroll={updateScrollFades}
+                        class:fade-top={layout.canScrollUp}
+                        class:fade-bottom={layout.canScrollDown}
+                        bind:this={layout.linksEl}
+                        onscroll={layout.updateScrollFades}
                     >
                         {@render children?.()}
                     </main>
 
-                    <div class="area-controls">
+                    <div class="area-controls" bind:this={layout.controlsEl}>
                         <button
                             type="button"
                             class="control-btn control-btn--lang"
-                            onclick={changeLanguage}
+                            onclick={layout.changeLanguage}
+                            onpointerenter={layout.warmKoreanFonts}
+                            onfocus={layout.warmKoreanFonts}
                             aria-label={ui('language_a11y', $locale)}
                         >
                             <Swap text={localeLabels[$locale]} />
@@ -213,10 +104,10 @@
                         <button
                             type="button"
                             class="control-btn"
-                            onclick={toggleTheme}
-                            aria-label={isLight ? ui('theme_a11y_toDark', $locale) : ui('theme_a11y_toLight', $locale)}
+                            onclick={layout.toggleTheme}
+                            aria-label={layout.isLight ? ui('theme_a11y_toDark', $locale) : ui('theme_a11y_toLight', $locale)}
                         >
-                            <ThemeIcon {isLight} className="control-icon" />
+                            <ThemeIcon className="control-icon" />
                         </button>
                     </div>
                 </div>
@@ -224,248 +115,3 @@
         {/if}
     </div>
 </div>
-
-<style lang="scss">
-    :root {
-        --color-gold: oklch(74.6% 0.17 84.1);
-        --easing-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* Registered so the .area-links edge-fade can transition smoothly; browsers
-       without @property simply switch the fade instantly (still correct). */
-    @property --fade-top-size {
-        syntax: '<length>';
-        inherits: false;
-        initial-value: 0px;
-    }
-    @property --fade-bottom-size {
-        syntax: '<length>';
-        inherits: false;
-        initial-value: 0px;
-    }
-
-    /* --- Shell & background layers --- */
-    .app-shell {
-        @apply h-[100dvh] w-full bg-base-dark text-base-cream relative overflow-hidden;
-        transition: background-color 0.5s var(--easing-expo), color 0.5s var(--easing-expo);
-    }
-
-    .bg-layer {
-        @apply fixed inset-0 z-0 pointer-events-none;
-    }
-
-    .bg-radial {
-        @apply absolute inset-0 opacity-40;
-    }
-
-    .bg-animation {
-        @apply absolute inset-0 opacity-20 motion-safe:animate-pulse-slow;
-    }
-
-    /* --- Scroll container & layout regions --- */
-    .scroll-area {
-        /* Locked viewport: the shell is a fixed 100dvh and this container does not
-           scroll. The only vertically scrollable region is .area-links (below). */
-        @apply relative z-10 w-full h-full overflow-hidden flex flex-col;
-        @apply lg:block;
-    }
-
-    .animations-main {
-        /* The /animations route has no .area-links, so it owns its own vertical
-           scroll within the locked shell. Never scrolls horizontally. */
-        @apply w-full h-full overflow-y-auto overflow-x-hidden py-12 px-6 sm:px-12 lg:px-24;
-    }
-
-    .editorial-container {
-        /* h-full (not min-h-full): pinned to the viewport so the grid's 1fr row —
-           and only that row (.area-links) — can host the scroll. */
-        @apply max-w-7xl mx-auto flex flex-col h-full w-full px-6;
-        @apply sm:px-12;
-        @apply lg:px-24;
-        /* xl+ (landscape, where the StlAnimation square sits flush-right): drop the
-           auto-centering and bias the whole composition left so the animation owns the
-           right of the frame. mr stays auto while a fluid left margin grows from 0 near
-           the xl breakpoint to ~11rem on 4K, settling the visual mass around the left
-           third. The px gutter is kept so the title never touches the bezel. */
-        @apply xl:ml-[clamp(0rem,-8rem_+_8vw,11rem)] xl:mr-auto;
-        /* Big monitors: widen the left-anchored island so the whole composition scales up (1280px -> 1760px) */
-        @apply 3xl:max-w-[clamp(1280px,800px_+_25vw,1760px)];
-    }
-
-    .editorial-grid {
-        /* min-h-0: as a flex child (flex-1) its default min-height:auto would refuse
-           to shrink below content and overflow the viewport. Allowing it to shrink to
-           the container lets the 1fr row hand its overflow to .area-links instead. */
-        @apply grid grid-cols-1 grid-rows-[auto_auto_1fr_auto] pt-12 z-20 flex-1 min-h-0;
-        @apply xl:grid-cols-2 xl:grid-rows-2 xl:items-start xl:gap-y-16 xl:gap-x-40 xl:p-0;
-        /* Widen the column gap to match the larger composition on big monitors (10rem -> 12rem) */
-        @apply 3xl:gap-x-[clamp(10rem,8rem_+_1.67vw,12rem)];
-    }
-
-    .area-title {
-        /* Size tracks viewport HEIGHT (~18.7vh), not width: across every target
-           device the ideal size is a near-constant fraction of height, so a short
-           1280x680 laptop and a 375x667 phone both land ~128px while tall tablets
-           reach ~256px. `min(.,42vw)` only engages on very narrow viewports to stop
-           overflow; the rem floor/ceiling bound the extremes and keep browser zoom
-           working at the ends (WCAG 1.4.4). One unified clamp replaces the old vw
-           ramp, so the 3xl width tier is no longer needed. */
-        font-size: clamp(7rem /* 112px */,min(18.7vh,42vw),16rem /* 256px */);
-        @apply flex justify-start leading-[0.85] mb-10 pointer-events-none;
-        @apply xl:col-start-1 xl:row-start-1 xl:place-self-end xl:text-right xl:mb-0;
-    }
-
-    .area-nav {
-        @apply z-40 flex justify-start mt-2 mb-10;
-        @apply xl:col-start-2 xl:row-start-1 xl:place-self-end xl:justify-self-start xl:sticky xl:top-[10vh] xl:pt-2 xl:block xl:mb-0;
-    }
-
-    .area-links {
-        /* Single-column (mobile/tablet): left-aligned to the gutter so the link block
-           shares one common left edge with the title, nav and controls. */
-        @apply w-[22rem] max-w-xl flex-1 py-2;
-        /* The page's sole scroll region. min-h-0 lets the grid track shrink below
-           its content so the overflow scrolls here instead of growing the layout. */
-        @apply min-h-0 overflow-y-auto overflow-x-hidden;
-        /* Scroll affordance: fade whichever edge has more content beyond it. The
-           fade sizes default to 0 (no fade) and are switched on by .fade-top/.fade-bottom
-           as the user scrolls, so the cue only appears when scrolling is possible.
-           The mask is anchored to the element box, so the fade stays pinned to the
-           edges rather than scrolling with the content. */
-        --fade-top-size: 0px;
-        --fade-bottom-size: 0px;
-        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top-size), #000 calc(100% - var(--fade-bottom-size)), transparent 100%);
-        mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top-size), #000 calc(100% - var(--fade-bottom-size)), transparent 100%);
-        transition: --fade-top-size 0.3s var(--easing-expo), --fade-bottom-size 0.3s var(--easing-expo);
-
-        &.fade-top { --fade-top-size: 5rem; }
-        &.fade-bottom { --fade-bottom-size: 5rem; }
-        /* xl: stretch to fill the row's height (so there's a definite box to scroll
-           inside) while staying flush-left horizontally. */
-        @apply xl:col-start-2 xl:row-start-2 xl:justify-self-start xl:self-stretch xl:py-0;
-        /* Let the links column widen with the rest of the composition (36rem -> 44rem) */
-        @apply 3xl:max-w-[clamp(36rem,28rem_+_6.67vw,44rem)];
-    }
-
-    .area-controls {
-        @apply flex justify-start gap-3 pt-2 pb-10 mt-auto;
-        @apply xl:col-start-1 xl:row-start-2 xl:place-self-start xl:justify-self-end xl:justify-end xl:py-0 xl:mt-0;
-    }
-
-    /* --- Navigation --- */
-    .nav-list {
-        @apply inline-flex gap-6 text-xs;
-        @apply sm:gap-9;
-        @apply xl:grid xl:grid-flow-row xl:auto-rows-max xl:gap-4 xl:justify-items-start;
-    }
-
-    .nav-link {
-        @apply flex items-center justify-center relative text-fluid-xs 3xl:text-fluid-xs-hd font-semibold tracking-[0.25em] uppercase text-base-cream/30 whitespace-nowrap no-underline py-2 px-1 cursor-pointer;
-        @apply xl:justify-start xl:px-0;
-        transition: all 0.7s var(--easing-expo);
-
-        &.nav-active {
-            @apply text-base-cream;
-        }
-    }
-
-    .nav-text {
-        @apply relative z-10;
-        transition: shadow 0.3s var(--easing-expo);
-    }
-
-    .control-btn {
-        @apply text-fluid-sm 3xl:text-fluid-sm-hd font-bold tracking-[0.08em] uppercase text-base-cream/55 rounded-full border border-base-cream/10 bg-base-dark/30 backdrop-blur-xl cursor-pointer;
-        /* Round (circular) controls: a fixed square box with centered content.
-           44px keeps the touch target at the WCAG 2.5.8 minimum. */
-        @apply inline-flex items-center justify-center w-11 h-11 p-0;
-        transition: color 0.5s var(--easing-expo), border-color 0.5s var(--easing-expo),
-            background-color 0.5s var(--easing-expo), box-shadow 0.5s var(--easing-expo);
-    }
-
-
-    /* Light mode flips --color-ink to a dark teal, so the alpha that reads as a
-       quiet ~5:1 on the dark surface drops below AA on porcelain. The resting
-       label needs more presence there to clear 4.5:1. */
-    :global(.light) .control-btn {
-        @apply text-base-cream/80;
-    }
-
-    .control-btn :global(.control-icon) {
-        @apply w-[1.55em] h-[1.55em];
-    }
-
-    /* Buttons grow alongside the type on QHD/4K so they don't look pinched */
-    @media (min-width: 1920px) {
-        .control-btn {
-            width: clamp(2.75rem, 2rem + 0.6vw, 3.25rem);
-            height: clamp(2.75rem, 2rem + 0.6vw, 3.25rem);
-        }
-    }
-
-    /* Join the page's gold interaction language: the warm bloom the nav indicator
-       and link cards already use, mirrored here for both hover and keyboard focus
-       so the controls stop reading as bolted-on glass chips. */
-    .control-btn:focus-visible {
-        @apply outline-none text-accent-gold border-accent-gold/30 bg-accent-gold/5;
-        box-shadow: 0 0 20px var(--glow-secondary);
-    }
-
-    @media (hover: hover) {
-        .control-btn:hover {
-            @apply text-accent-gold border-accent-gold/30 bg-accent-gold/5;
-            box-shadow: 0 0 20px var(--glow-secondary);
-        }
-    }
-
-    @keyframes nav-item-reveal {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Desktop Indicator (marginal editorial rule, sits left of the flush label) */
-    .nav-indicator {
-        @apply absolute h-[1px] w-5 bg-accent-gold origin-left opacity-0;
-        left: -2rem;
-        top: 50%;
-        transform: translateY(-50%) scaleX(0);
-        transition: transform 0.7s var(--easing-expo), opacity 0.7s var(--easing-expo), box-shadow 0.7s var(--easing-expo);
-    }
-
-    /* Mobile indicator: a centered gold rule beneath the label, the horizontal-axis analog of the desktop marginal rule */
-    .nav-rule {
-        @apply absolute bottom-0 left-1/2 h-[1px] w-6 bg-accent-gold opacity-0;
-        transform: translateX(-50%) scaleX(0);
-        transition: transform 0.7s var(--easing-expo), opacity 0.7s var(--easing-expo), box-shadow 0.7s var(--easing-expo);
-    }
-
-    .nav-active .nav-rule {
-        @apply opacity-100;
-        transform: translateX(-50%) scaleX(1);
-        box-shadow: 0 0 20px var(--color-gold);
-    }
-
-    @media (hover: hover) {
-        .nav-link:not(.nav-active):hover {
-            @apply text-base-cream/60;
-        }
-        .nav-link:not(.nav-active):hover .nav-indicator {
-            @apply opacity-40;
-            transform: translateY(-50%) scaleX(0.6);
-            box-shadow: 0 0 15px var(--color-gold);
-        }
-    }
-
-    .nav-active .nav-indicator {
-        @apply opacity-100;
-        transform: translateY(-50%) scaleX(1);
-        box-shadow: 0 0 20px var(--color-gold);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .nav-link, .nav-indicator, .nav-rule, .control-btn {
-            transition: none !important;
-            animation: none !important;
-        }
-    }
-</style>
