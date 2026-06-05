@@ -1,22 +1,22 @@
 <script lang="ts">
-    import "./+layout.scss";
-    import { page } from "$app/state";
-    import StlAnimation from "$lib/components/StlAnimation.svelte";
-    import Swap from "$lib/components/Swap.svelte";
-    import ThemeIcon from "$lib/components/ThemeIcon.svelte";
-    import { locale, localeLabels, t } from "$lib/i18n";
-    import { ui } from "$lib/i18n/ui";
-    // Preload the Urbanist weights present at first paint (300 descriptions, 600 nav/labels).
-    // The @font-face rules ship in the JS-bundled CSS, so without this the font is only
-    // discovered after that CSS loads and `font-display: swap` flashes the fallback first.
-    // `?url` resolves to the same hashed asset the @font-face src points at; the SSR'd
-    // <link rel="preload"> below kicks the fetch off in the initial HTML instead.
-    import urbanist300 from "@fontsource/urbanist/files/urbanist-latin-300-normal.woff2?url";
-    import urbanist600 from "@fontsource/urbanist/files/urbanist-latin-600-normal.woff2?url";
-    import { createLayoutState } from './layout.svelte.js';
+  import "./+layout.scss";
+  import { page } from "$app/state";
+  import StlAnimation from "$lib/components/StlAnimation.svelte";
+  import Swap from "$lib/components/Swap.svelte";
+  import ThemeIcon from "$lib/components/ThemeIcon.svelte";
+  import { locale, localeLabels, t } from "$lib/i18n";
+  import { ui } from "$lib/i18n/ui";
+  // Preload the Urbanist weights present at first paint (300 descriptions, 600 nav/labels).
+  // The @font-face rules ship in the JS-bundled CSS, so without this the font is only
+  // discovered after that CSS loads and `font-display: swap` flashes the fallback first.
+  // `?url` resolves to the same hashed asset the @font-face src points at; the SSR'd
+  // <link rel="preload"> below kicks the fetch off in the initial HTML instead.
+  import urbanist300 from "@fontsource/urbanist/files/urbanist-latin-300-normal.woff2?url";
+  import urbanist600 from "@fontsource/urbanist/files/urbanist-latin-600-normal.woff2?url";
+  import { createLayoutState } from './layout.svelte.js';
 
-    const layout = createLayoutState();
-    let { children } = $props();
+  const layout = createLayoutState();
+  let { children } = $props();
 </script>
 
 <svelte:head>
@@ -37,11 +37,11 @@
 
 <div class="app-shell selection-gold" class:no-transitions={!layout.mounted}>
     <div class="bg-layer">
-        <div class="bg-radial bg-gradient-radial"></div>
+        <div class="bg-atmosphere bg-gradient-radial"></div>
         {#if page.url.pathname !== '/animations'}
             <!-- Kept mounted across theme toggles (hidden, not destroyed, in light mode)
                  so the data loads once at startup and the frame loop keeps advancing. -->
-            <div class="bg-animation" class:is-hidden={layout.isLight}>
+            <div class="bg-ascii" class:is-hidden={layout.isLight}>
                 <StlAnimation />
             </div>
         {/if}
@@ -51,12 +51,12 @@
 
     <div class="scroll-area no-scrollbar">
         {#if page.url.pathname === '/animations'}
-            <main class="animations-main">
+            <main class="animations-scroll">
                 {@render children?.()}
             </main>
         {:else}
-            <div class="editorial-container">
-                <div class="editorial-grid">
+            <div class="page-container">
+                <div class="page-grid">
                     <h1 class="area-title neon-text" lang="en">
                         <span>Luís<br />Tovar</span>
                     </h1>
@@ -66,23 +66,19 @@
                             {#each layout.sections as section, i}
                                 {@const isActive = page.url.pathname === `/${ section.id }`}
                                 <a href="/{section.id}" class="nav-link group" class:nav-active={isActive}>
-                                    <span class="nav-indicator hidden xl:block"></span>
-                                    <span class="nav-text" class:neon-text={isActive}>
+                                    <span class="nav-tick hidden xl:block"></span>
+                                    <span class="nav-label" class:neon-text={isActive}>
                                         <Swap text={t(section.label, $locale)} delay={i * 45} />
                                     </span>
-                                    <span class="nav-rule xl:hidden"></span>
+                                    <span class="nav-underline xl:hidden"></span>
                                 </a>
                             {/each}
                         </nav>
                     </header>
 
-                    <main
-                            class="area-links no-scrollbar"
-                            class:fade-top={layout.canScrollUp}
-                            class:fade-bottom={layout.canScrollDown}
-                            bind:this={layout.linksEl}
-                            onscroll={layout.updateScrollFades}
-                    >
+                    <main class="area-links no-scrollbar"
+                          class:fade-top={layout.canScrollUp} class:fade-bottom={layout.canScrollDown}
+                          bind:this={layout.linksEl} onscroll={layout.updateScrollFades}>
                         {@render children?.()}
                     </main>
 

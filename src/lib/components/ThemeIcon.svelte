@@ -9,16 +9,20 @@
   // one shape that morphs: the disc stays, a shadow circle slides across to
   // carve the crescent, and the rays retract. Each instance needs its own
   // mask id so multiple toggles never collide.
-  const maskId = `theme-icon-cutout-${ (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)) }`;
+  const maskId = `theme-icon-shadow-disc-${ (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)) }`;
 </script>
 
-<svg class="theme-icon {className}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+<!-- Intrinsic width/height keep the icon sized even where the CSS `em` sizing is
+     dropped (e.g. some in-app WebKit browsers): without them an inline SVG with no
+     intrinsic dimensions falls back to the 300x150 default and bursts out of the
+     button. The `.control-icon` CSS width/height still wins wherever it's honored. -->
+<svg class="theme-icon {className}" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <mask id={maskId}>
         <rect width="24" height="24" fill="white" />
         <!-- The shadow that bites the crescent. Larger than the disc so the inner
              edge is a graceful flat arc, not a deep notch. Parked up-right for the
              sun (no overlap → full disc); slid over the disc for the moon. -->
-        <circle class="cutout" cx="16" cy="9" r="6" fill="black" />
+        <circle class="shadow-disc" cx="16" cy="9" r="6" fill="black" />
     </mask>
 
     <!-- Sun rays: retract and spin away as the moon takes over. -->
@@ -44,7 +48,7 @@
     overflow: visible;
   }
 
-  .cutout,
+  .shadow-disc,
   .rays,
   .disc {
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -65,7 +69,7 @@
     transition: transform 0.55s var(--ease-out-expo);
   }
 
-  .cutout {
+  .shadow-disc {
     transform: translate(0, 0);
     transition: transform 0.55s var(--ease-out-expo);
   }
@@ -85,7 +89,7 @@
       transform: scale(0.66);
     }
 
-    .cutout {
+    .shadow-disc {
       transform: translate(8px, -8px);
     }
 
@@ -97,7 +101,7 @@
 
   /* State stays correct without the tween: instant swap, no animation. */
   @media (prefers-reduced-motion: reduce) {
-    .cutout,
+    .shadow-disc,
     .rays,
     .disc {
       transition: none;

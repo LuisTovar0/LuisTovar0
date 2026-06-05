@@ -15,8 +15,8 @@
         {#each section.links as link, i}
             {@const stagger = Math.min(i, 8) * 45}
             <li class="link-item">
-                <a href={link.url} target="_blank" rel="noopener noreferrer" class="link-row group">
-                    <div class="link-head">
+                <a href={link.url} target="_blank" rel="noopener noreferrer" class="link-card group">
+                    <div class="link-header">
                         <span class="link-label">
                             <Swap text={t(link.label, $locale)} delay={stagger} />
                         </span>
@@ -53,7 +53,7 @@
     @apply relative z-10;
   }
 
-  .link-row {
+  .link-card {
     @apply block border-t border-base-cream/10 my-6;
     @apply first:border-t-0 first:mt-0;
     transition: border-color 0.5s, background-color 0.5s, box-shadow 0.5s;
@@ -64,19 +64,19 @@
     }
   }
 
-  .link-row:focus-visible .link-label {
+  .link-card:focus-visible .link-label {
     @apply text-accent-gold;
   }
 
-  .link-row:focus-visible .link-desc {
+  .link-card:focus-visible .link-desc {
     @apply text-base-cream/70;
   }
 
-  :global(.link-row:focus-visible .link-icon) {
+  :global(.link-card:focus-visible .link-icon) {
     @apply opacity-100 text-accent-gold;
   }
 
-  .link-head {
+  .link-header {
     @apply flex items-baseline justify-between gap-4;
   }
 

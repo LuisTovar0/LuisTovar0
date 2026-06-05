@@ -34,11 +34,11 @@
   @apply fixed inset-0 z-0 pointer-events-none;
 }
 
-.bg-radial {
+.bg-atmosphere {
   @apply absolute inset-0 opacity-40;
 }
 
-.bg-animation {
+.bg-ascii {
   @apply absolute inset-0 opacity-20 motion-safe:animate-pulse-slow;
   transition: opacity 0.5s var(--easing-expo);
 
@@ -59,13 +59,13 @@
   @apply lg:block;
 }
 
-.animations-main {
+.animations-scroll {
   /* The /animations route has no .area-links, so it owns its own vertical
      scroll within the locked shell. Never scrolls horizontally. */
   @apply w-full h-full overflow-y-auto overflow-x-hidden py-12 px-6 sm:px-12 lg:px-24;
 }
 
-.editorial-container {
+.page-container {
   /* h-full (not min-h-full): pinned to the viewport so the grid's 1fr row —
      and only that row (.area-links) — can host the scroll. */
   @apply max-w-7xl mx-auto flex flex-col h-full w-full px-6;
@@ -81,7 +81,7 @@
   @apply 3xl:max-w-[clamp(1280px,800px_+_25vw,1760px)];
 }
 
-.editorial-grid {
+.page-grid {
   /* min-h-0: as a flex child (flex-1) its default min-height:auto would refuse
      to shrink below content and overflow the viewport. Allowing it to shrink to
      the container lets the 1fr row hand its overflow to .area-links instead. */
@@ -114,7 +114,7 @@
 .area-links {
   /* Single-column (mobile/tablet): left-aligned to the gutter so the link block
      shares one common left edge with the title, nav and controls. */
-  @apply w-[22rem] max-w-xl flex-1 py-2;
+  @apply w-[22rem] max-w-xl py-2;
   /* The page's sole scroll region. min-h-0 lets the grid track shrink below
      its content so the overflow scrolls here instead of growing the layout. */
   @apply min-h-0 overflow-y-auto overflow-x-hidden;
@@ -162,7 +162,7 @@
   }
 }
 
-.nav-text {
+.nav-label {
   @apply relative z-10;
   transition: shadow 0.3s var(--easing-expo);
 }
@@ -217,7 +217,7 @@
 }
 
 /* Desktop Indicator (marginal editorial rule, sits left of the flush label) */
-.nav-indicator {
+.nav-tick {
   @apply absolute h-[1px] w-5 bg-accent-gold origin-left opacity-0;
   left: -2rem;
   top: 50%;
@@ -226,13 +226,13 @@
 }
 
 /* Mobile indicator: a centered gold rule beneath the label, the horizontal-axis analog of the desktop marginal rule */
-.nav-rule {
+.nav-underline {
   @apply absolute bottom-0 left-1/2 h-[1px] w-6 bg-accent-gold opacity-0;
   transform: translateX(-50%) scaleX(0);
   transition: transform 0.7s var(--easing-expo), opacity 0.7s var(--easing-expo), box-shadow 0.7s var(--easing-expo);
 }
 
-.nav-active .nav-rule {
+.nav-active .nav-underline {
   @apply opacity-100;
   transform: translateX(-50%) scaleX(1);
   box-shadow: 0 0 20px var(--color-gold);
@@ -242,21 +242,21 @@
   .nav-link:not(.nav-active):hover {
     @apply text-base-cream/60;
   }
-  .nav-link:not(.nav-active):hover .nav-indicator {
+  .nav-link:not(.nav-active):hover .nav-tick {
     @apply opacity-40;
     transform: translateY(-50%) scaleX(0.6);
     box-shadow: 0 0 15px var(--color-gold);
   }
 }
 
-.nav-active .nav-indicator {
+.nav-active .nav-tick {
   @apply opacity-100;
   transform: translateY(-50%) scaleX(1);
   box-shadow: 0 0 20px var(--color-gold);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav-link, .nav-indicator, .nav-rule, .control-btn {
+  .nav-link, .nav-tick, .nav-underline, .control-btn {
     transition: none !important;
     animation: none !important;
   }
