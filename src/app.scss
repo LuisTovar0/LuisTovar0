@@ -7,34 +7,36 @@
    imports (which split Korean across dozens of subset faces we can't add size-adjust to).
    Weights mirror the Urbanist set used in the UI: 300 / 500 / 600. */
 @font-face {
-    font-family: 'Gothic A1';
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    size-adjust: 115%;
-    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff2') format('woff2'),
-         url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff') format('woff');
-    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+  font-family: 'Gothic A1';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  size-adjust: 115%;
+  src: url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff2') format('woff2'),
+  url('@fontsource/gothic-a1/files/gothic-a1-korean-300-normal.woff') format('woff');
+  unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
 }
+
 @font-face {
-    font-family: 'Gothic A1';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    size-adjust: 115%;
-    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff2') format('woff2'),
-         url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff') format('woff');
-    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+  font-family: 'Gothic A1';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  size-adjust: 115%;
+  src: url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff2') format('woff2'),
+  url('@fontsource/gothic-a1/files/gothic-a1-korean-500-normal.woff') format('woff');
+  unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
 }
+
 @font-face {
-    font-family: 'Gothic A1';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    size-adjust: 115%;
-    src: url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff2') format('woff2'),
-         url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff') format('woff');
-    unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
+  font-family: 'Gothic A1';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  size-adjust: 115%;
+  src: url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff2') format('woff2'),
+  url('@fontsource/gothic-a1/files/gothic-a1-korean-600-normal.woff') format('woff');
+  unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
 }
 
 @tailwind base;
@@ -42,127 +44,125 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        /* Default Dark Mode (Cyber-Luxe) */
-        --color-surface: #0C1618;
-        --color-ink: #faf4d3;
-        --color-brand: #faf4d3; /* Same as ink in dark mode */
-        --color-accent: #D1AC00;
-        --color-atmosphere-1: #004643;
-        --color-atmosphere-2: #002e2b;
-        --glow-color: rgba(250, 244, 211, 0.8);
-        --glow-secondary: rgba(209, 172, 0, 0.4);
-        --shadow-bg: #0C1618;
-        --shadow-icon: rgba(12, 22, 24, 0.5);
-    }
+  :root {
+    /* Default Dark Mode (Cyber-Luxe) */
+    --color-surface: #0C1618;
+    --color-ink: #faf4d3;
+    --color-brand: #faf4d3; /* Same as ink in dark mode */
+    --color-accent: #D1AC00;
+    --color-atmosphere-1: #004643;
+    --color-atmosphere-2: #002e2b;
+    --glow-color: rgba(250, 244, 211, 0.8);
+    --glow-secondary: rgba(209, 172, 0, 0.4);
+    --shadow-bg: #0C1618;
+    --shadow-icon: rgba(12, 22, 24, 0.5);
+  }
 
-    :root.light {
-        /* Cool Porcelain — off-white tinted toward the brand teal, not warm bone.
-           Warmth in this theme comes from the gold accent, never the body bg. */
-        --color-surface: oklch(96.5% 0.006 190);
-        --color-ink: oklch(25% 0.02 180);
-        --color-brand: oklch(35% 0.08 180); /* Luxury Teal */
-        /* Gold darkened for light mode so it can carry foreground text:
-           oklch(52% 0.13 80) clears 4.5:1 (~5.1:1) on the porcelain surface,
-           where the dark-mode #D1AC00 only managed ~1.9:1. */
-        --color-accent: oklch(52% 0.13 80);
-        --color-atmosphere-1: oklch(93% 0.025 180); /* Teal wash, upper-left */
-        --color-atmosphere-2: oklch(95.5% 0.025 84); /* Faint gold accent wash, lower-right */
-        --glow-color: oklch(35% 0.08 180 / 0.15);
-        --glow-secondary: oklch(74.6% 0.17 84.1 / 0.25);
-        --shadow-bg: transparent;
-        --shadow-icon: transparent;
-    }
+  :root.light {
+    /* Cool Porcelain — off-white tinted toward the brand teal, not warm bone.
+       Warmth in this theme comes from the gold accent, never the body bg. */
+    --color-surface: oklch(96.5% 0.006 190);
+    --color-ink: oklch(25% 0.02 180);
+    --color-brand: oklch(35% 0.08 180); /* Luxury Teal */
+    /* Gold darkened for light mode so it can carry foreground text:
+       oklch(52% 0.13 80) clears 4.5:1 (~5.1:1) on the porcelain surface,
+       where the dark-mode #D1AC00 only managed ~1.9:1. */
+    --color-accent: oklch(52% 0.13 80);
+    --color-atmosphere-1: oklch(93% 0.025 180); /* Teal wash, upper-left */
+    --color-atmosphere-2: oklch(95.5% 0.025 84); /* Faint gold accent wash, lower-right */
+    --glow-color: oklch(35% 0.08 180 / 0.15);
+    --glow-secondary: oklch(74.6% 0.17 84.1 / 0.25);
+    --shadow-bg: transparent;
+    --shadow-icon: transparent;
+  }
 
-    html, body {
-        height: 100%;
-        overflow: hidden;
-        overscroll-behavior: none;
-    }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
 
-    body {
-        background-color: var(--color-surface);
-        color: var(--color-ink);
-        @apply font-sans antialiased tracking-wide;
-        margin: 0;
-        padding: 0;
-        transition: background-color 0.5s var(--easing-expo, cubic-bezier(0.16, 1, 0.3, 1)), color 0.5s var(--easing-expo, cubic-bezier(0.16, 1, 0.3, 1));
-    }
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    @apply font-sans antialiased tracking-wide;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.5s var(--easing-expo, cubic-bezier(0.16, 1, 0.3, 1)), color 0.5s var(--easing-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  }
 
-    h1 {
-        @apply font-serif italic font-normal tracking-[-0.03em];
-        color: var(--color-brand);
-        text-shadow:
-            0 0 20px var(--shadow-bg),
-            0 0 40px var(--shadow-bg),
-            0 0 60px var(--shadow-bg),
-            0 0 80px var(--shadow-bg);
-    }
+  h1 {
+    @apply font-serif italic font-normal tracking-[-0.03em];
+    color: var(--color-brand);
+    text-shadow: 0 0 20px var(--shadow-bg),
+    0 0 40px var(--shadow-bg),
+    0 0 60px var(--shadow-bg),
+    0 0 80px var(--shadow-bg);
+  }
 }
 
 @layer components {
-    .no-scrollbar {
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none;  /* IE and Edge */
-        &::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
-        }
+  .no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
     }
+  }
 
-    .bg-gradient-radial {
-        background: radial-gradient(circle at 15% 25%, var(--color-atmosphere-1) 0%, transparent 45%),
-                    radial-gradient(circle at 85% 75%, var(--color-atmosphere-2) 0%, transparent 40%);
+  .bg-gradient-radial {
+    background: radial-gradient(circle at 15% 25%, var(--color-atmosphere-1) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, var(--color-atmosphere-2) 0%, transparent 40%);
+  }
+
+  .grain-texture {
+    @apply absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none;
+    background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23n)"/%3E%3C/svg%3E');
+
+    .light & {
+      @apply opacity-[0.05] mix-blend-multiply;
     }
+  }
 
-    .grain-texture {
-        @apply absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none;
-        background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%" height="100%" filter="url(%23n)"/%3E%3C/svg%3E');
-        .light & {
-            @apply opacity-[0.05] mix-blend-multiply;
-        }
+  .neon-text {
+    @apply transition-all duration-75;
+    color: var(--color-brand);
+    text-shadow: none;
+
+    /* Dark mode: always glowing, with an idle flicker. */
+    :root:not(.light) & {
+      text-shadow: 0 0 2px var(--glow-color),
+      0 0 5px var(--glow-secondary),
+      0 0 10px var(--glow-secondary),
+      0 0 20px var(--glow-secondary),
+      0 0 30px var(--glow-secondary),
+      0 0 50px var(--glow-secondary),
+      0 0 20px var(--shadow-bg),
+      0 0 40px var(--shadow-bg);
+
+      @media (prefers-reduced-motion: no-preference) {
+        animation: neon-idle-flicker 5s infinite;
+      }
     }
+  }
 
-    .neon-text {
-        @apply transition-all duration-75;
-        color: var(--color-brand);
-        text-shadow: none;
-
-        /* Dark mode: always glowing, with an idle flicker. */
-        :root:not(.light) & {
-            text-shadow:
-                0 0 2px var(--glow-color),
-                0 0 5px var(--glow-secondary),
-                0 0 10px var(--glow-secondary),
-                0 0 20px var(--glow-secondary),
-                0 0 30px var(--glow-secondary),
-                0 0 50px var(--glow-secondary),
-                0 0 20px var(--shadow-bg),
-                0 0 40px var(--shadow-bg);
-
-            @media (prefers-reduced-motion: no-preference) {
-                animation: neon-idle-flicker 5s infinite;
-            }
-        }
+  @keyframes neon-idle-flicker {
+    0%, 94%, 96%, 98.4%, 100% {
+      text-shadow: 0 0 2px var(--glow-color),
+      0 0 5px var(--glow-secondary),
+      0 0 10px var(--glow-secondary),
+      0 0 20px var(--glow-secondary),
+      0 0 30px var(--glow-secondary),
+      0 0 50px var(--glow-secondary),
+      0 0 20px var(--shadow-bg),
+      0 0 40px var(--shadow-bg);
     }
-
-    @keyframes neon-idle-flicker {
-        0%, 94%, 96%, 98.4%, 100% {
-            text-shadow:
-                0 0 2px var(--glow-color),
-                0 0 5px var(--glow-secondary),
-                0 0 10px var(--glow-secondary),
-                0 0 20px var(--glow-secondary),
-                0 0 30px var(--glow-secondary),
-                0 0 50px var(--glow-secondary),
-                0 0 20px var(--shadow-bg),
-                0 0 40px var(--shadow-bg);
-        }
-        95%, 97.4% {
-            text-shadow: none;
-        }
+    95%, 97.4% {
+      text-shadow: none;
     }
+  }
 
-    .selection-gold {
-        @apply selection:bg-accent-gold selection:text-base-dark;
-    }
+  .selection-gold {
+    @apply selection:bg-accent-gold selection:text-base-dark;
+  }
 }

@@ -4,13 +4,12 @@ import "@fontsource/urbanist/300.css";
 import "@fontsource/urbanist/500.css";
 import "@fontsource/urbanist/600.css";
 import "../app.scss";
-import linksData from "$lib/data/links.json";
-import { page } from "$app/state";
-import { onMount, tick } from "svelte";
 import { browser } from "$app/environment";
+import { page } from "$app/state";
+import linksData from "$lib/data/links.json";
+import { cycleLocale, initLocale, locale, locales } from "$lib/i18n";
+import { onMount, tick } from "svelte";
 import { get } from "svelte/store";
-import { locale, locales, t, initLocale, cycleLocale, localeLabels } from "$lib/i18n";
-import { ui } from "$lib/i18n/ui";
 
 export function createLayoutState() {
   // Theme initialization: honour a saved choice first, otherwise fall back to

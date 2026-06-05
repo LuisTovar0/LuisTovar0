@@ -28,26 +28,22 @@ const BLUR = 4; // px at full out-of-focus; the dissolve's visible "refocus"
 
 /** New wording: sharpens into focus in place. `delay` staggers lists. */
 export const swapIn: Transition = (_node, { delay = 0 } = {}) => {
-    if (prefersReducedMotion()) {
-        return { delay, duration: DURATION, easing: linear, css: (t) => `opacity:${t}` };
-    }
-    return {
-        delay,
-        duration: DURATION,
-        easing: linear,
-        css: (t, u) => `opacity:${t};filter:blur(${u * BLUR}px)`
-    };
+  if (prefersReducedMotion()) {
+    return { delay, duration: DURATION, easing: linear, css: (t) => `opacity:${ t }` };
+  }
+  return {
+    delay, duration: DURATION, easing: linear,
+    css: (t, u) => `opacity:${ t };filter:blur(${ u * BLUR }px)`,
+  };
 };
 
 /** Old wording: softens out of focus in place, complementary to the incoming run. */
 export const swapOut: Transition = (_node, { delay = 0 } = {}) => {
-    if (prefersReducedMotion()) {
-        return { delay, duration: DURATION, easing: linear, css: (t) => `opacity:${t}` };
-    }
-    return {
-        delay,
-        duration: DURATION,
-        easing: linear,
-        css: (t, u) => `opacity:${t};filter:blur(${u * BLUR}px)`
-    };
+  if (prefersReducedMotion()) {
+    return { delay, duration: DURATION, easing: linear, css: (t) => `opacity:${ t }` };
+  }
+  return {
+    delay, duration: DURATION, easing: linear,
+    css: (t, u) => `opacity:${ t };filter:blur(${ u * BLUR }px)`,
+  };
 };

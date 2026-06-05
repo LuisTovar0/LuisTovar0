@@ -1,23 +1,18 @@
 <script lang="ts">
-    interface Props {
-        className?: string;
-    }
+  interface Props {
+    className?: string;
+  }
 
-    let { className = "" }: Props = $props();
+  let { className = "" }: Props = $props();
 
-    // A single SVG can't tween between two mask images, so the sun and moon are
-    // one shape that morphs: the disc stays, a shadow circle slides across to
-    // carve the crescent, and the rays retract. Each instance needs its own
-    // mask id so multiple toggles never collide.
-    const maskId = `theme-icon-cutout-${(globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2))}`;
+  // A single SVG can't tween between two mask images, so the sun and moon are
+  // one shape that morphs: the disc stays, a shadow circle slides across to
+  // carve the crescent, and the rays retract. Each instance needs its own
+  // mask id so multiple toggles never collide.
+  const maskId = `theme-icon-cutout-${ (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)) }`;
 </script>
 
-<svg
-    class="theme-icon {className}"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
->
+<svg class="theme-icon {className}" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <mask id={maskId}>
         <rect width="24" height="24" fill="white" />
         <!-- The shadow that bites the crescent. Larger than the disc so the inner
@@ -43,68 +38,69 @@
 </svg>
 
 <style lang="scss">
-    .theme-icon {
-        /* Inherits the button's color (cream at rest, gold on hover/focus). */
-        color: currentColor;
-        overflow: visible;
-    }
+  .theme-icon {
+    /* Inherits the button's color (cream at rest, gold on hover/focus). */
+    color: currentColor;
+    overflow: visible;
+  }
 
-    .cutout,
-    .rays,
+  .cutout,
+  .rays,
+  .disc {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  /* The icon's state is driven entirely by the `.light` class on <html>, which
+     app.html's inline script sets *before first paint*. That makes the symbol
+     correct on the very first frame with no JS, so there's no hydration swap
+     (the old reactive `isLight` prop only resolved after hydration, which is
+     what caused the moon→sun flicker on a light-mode load).
+
+     Default (dark page) = moon: the shadow sits over the disc carving the
+     crescent, the disc is full size, and the rays are retracted. */
+  .disc {
+    transform: scale(1);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+
+  .cutout {
+    transform: translate(0, 0);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+
+  .rays {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.4);
+    transition: transform 0.45s var(--ease-out-expo),
+    opacity 0.35s var(--ease-out-expo);
+  }
+
+  /* Light page = sun: park the shadow off the disc (full disc shows), bloom the
+     rays, and shrink the disc a touch so the sun's footprint matches the moon's
+     (the full circle reads a little large without the crescent's bite). */
+  :global(html.light) {
     .disc {
-        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-        transform-box: fill-box;
-        transform-origin: center;
-    }
-
-    /* The icon's state is driven entirely by the `.light` class on <html>, which
-       app.html's inline script sets *before first paint*. That makes the symbol
-       correct on the very first frame with no JS, so there's no hydration swap
-       (the old reactive `isLight` prop only resolved after hydration, which is
-       what caused the moon→sun flicker on a light-mode load).
-
-       Default (dark page) = moon: the shadow sits over the disc carving the
-       crescent, the disc is full size, and the rays are retracted. */
-    .disc {
-        transform: scale(1);
-        transition: transform 0.55s var(--ease-out-expo);
+      transform: scale(0.66);
     }
 
     .cutout {
-        transform: translate(0, 0);
-        transition: transform 0.55s var(--ease-out-expo);
+      transform: translate(8px, -8px);
     }
 
     .rays {
-        opacity: 0;
-        transform: rotate(-45deg) scale(0.4);
-        transition:
-            transform 0.45s var(--ease-out-expo),
-            opacity 0.35s var(--ease-out-expo);
+      opacity: 1;
+      transform: scale(0.7);
     }
+  }
 
-    /* Light page = sun: park the shadow off the disc (full disc shows), bloom the
-       rays, and shrink the disc a touch so the sun's footprint matches the moon's
-       (the full circle reads a little large without the crescent's bite). */
-    :global(html.light) {
-        .disc {
-            transform: scale(0.66);
-        }
-        .cutout {
-            transform: translate(8px, -8px);
-        }
-        .rays {
-            opacity: 1;
-            transform: scale(0.7);
-        }
+  /* State stays correct without the tween: instant swap, no animation. */
+  @media (prefers-reduced-motion: reduce) {
+    .cutout,
+    .rays,
+    .disc {
+      transition: none;
     }
-
-    /* State stays correct without the tween: instant swap, no animation. */
-    @media (prefers-reduced-motion: reduce) {
-        .cutout,
-        .rays,
-        .disc {
-            transition: none;
-        }
-    }
+  }
 </style>

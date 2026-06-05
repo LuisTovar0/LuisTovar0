@@ -1,5 +1,5 @@
-import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
+import { writable } from 'svelte/store';
 
 /** Supported locales. */
 export const locales = [ 'pt', 'en', 'ko' ] as const;
@@ -9,9 +9,9 @@ export const defaultLocale: Locale = 'pt';
 
 /** Short label shown on the language switcher (until it becomes an icon). */
 export const localeLabels: Record<Locale, string> = {
-    en: 'EN',
-    pt: 'PT',
-    ko: '한'
+  en: 'EN',
+  pt: 'PT',
+  ko: '한',
 };
 
 /**
@@ -23,9 +23,11 @@ export type Translatable = string | Partial<Record<Locale, string>>;
 
 /** Resolve a {@link Translatable} for the given locale, falling back gracefully. */
 export function t(value: Translatable | undefined | null, locale: Locale): string {
-    if (value == null) return '';
-    if (typeof value === 'string') return value;
-    return value[locale] ?? value[defaultLocale] ?? Object.values(value)[0] ?? '';
+  if (value == null)
+    return '';
+  if (typeof value === 'string')
+    return value;
+  return value[locale] ?? value[defaultLocale] ?? Object.values(value)[0] ?? '';
 }
 
 export const locale = writable<Locale>(defaultLocale);
@@ -33,8 +35,9 @@ export const locale = writable<Locale>(defaultLocale);
 // Reflect onto <html lang>, but only after `initLocale()` has run.
 let initialized = false;
 locale.subscribe((value) => {
-    if (!browser || !initialized) return;
-    document.documentElement.lang = value;
+  if (!browser || !initialized)
+    return;
+  document.documentElement.lang = value;
 });
 
 /**
@@ -44,16 +47,17 @@ locale.subscribe((value) => {
  * language for the duration of the current session.
  */
 export function initLocale() {
-    if (!browser) return;
-    initialized = true;
-    locale.set(defaultLocale);
-    document.documentElement.lang = defaultLocale;
+  if (!browser)
+    return;
+  initialized = true;
+  locale.set(defaultLocale);
+  document.documentElement.lang = defaultLocale;
 }
 
 /** Advance to the next locale in {@link locales}, wrapping around. */
 export function cycleLocale() {
-    locale.update((current) => {
-        const next = (locales.indexOf(current) + 1) % locales.length;
-        return locales[next];
-    });
+  locale.update((current) => {
+    const next = (locales.indexOf(current) + 1) % locales.length;
+    return locales[next];
+  });
 }

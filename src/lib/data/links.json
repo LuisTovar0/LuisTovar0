@@ -2,7 +2,11 @@
   "sections": [
     {
       "id": "stuff",
-      "label": { "en": "Stuff", "pt": "Coisas", "ko": "것" },
+      "label": {
+        "en": "Stuff",
+        "pt": "Coisas",
+        "ko": "것"
+      },
       "links": [
         {
           "label": "Spotify",
@@ -49,7 +53,11 @@
     },
     {
       "id": "professional",
-      "label": { "en": "Professional", "pt": "Profissional", "ko": "커리어" },
+      "label": {
+        "en": "Professional",
+        "pt": "Profissional",
+        "ko": "커리어"
+      },
       "links": [
         {
           "label": "LinkedIn",
