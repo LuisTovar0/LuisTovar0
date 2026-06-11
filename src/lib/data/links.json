@@ -29,17 +29,30 @@
         },
         {
           "label": {
-            "en": "Guitar playing",
+            "en": "Guitar",
             "pt": "Guitarra",
-            "ko": "기타 연주"
+            "ko": "기타"
           },
           "description": {
-            "en": "",
+            "en": "I play guitar",
             "pt": "eu toco guitarra",
-            "ko": ""
+            "ko": "기타를 칩니다"
           },
           "url": "https://t.me/soundedbetterinmyhead",
           "icon": "broadcast"
+        },
+        {
+          "label": {
+            "en": "My choir's sheet music",
+            "pt": "Partituras do meu coro",
+            "ko": "합창단 악보"
+          },
+          "description": {
+            "en": "",
+            "pt": "ouve-nos: domingos, 18:30, igreja de ramalde. e contrata-nos",
+            "ko": ""
+          },
+          "url": "https://drive.google.com/drive/folders/14rjRfzPzA9iwYknCXpxgrWuCMMYJr7Mu"
         },
         {
           "label": {

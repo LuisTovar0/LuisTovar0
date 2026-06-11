@@ -39,6 +39,14 @@
   unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7A3, U+D7B0-D7FF;
 }
 
+/* Registered so gradient centers can be interpolated by the bg-drift animation. */
+@property --bg-g1-x { syntax: '<percentage>'; inherits: false; initial-value: 15%; }
+@property --bg-g1-y { syntax: '<percentage>'; inherits: false; initial-value: 25%; }
+@property --bg-g1-r { syntax: '<percentage>'; inherits: false; initial-value: 45%; }
+@property --bg-g2-x { syntax: '<percentage>'; inherits: false; initial-value: 85%; }
+@property --bg-g2-y { syntax: '<percentage>'; inherits: false; initial-value: 75%; }
+@property --bg-g2-r { syntax: '<percentage>'; inherits: false; initial-value: 40%; }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -111,8 +119,12 @@
   }
 
   .bg-gradient-radial {
-    background: radial-gradient(circle at 15% 25%, var(--color-atmosphere-1) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, var(--color-atmosphere-2) 0%, transparent 40%);
+    background: radial-gradient(circle at var(--bg-g1-x) var(--bg-g1-y), var(--color-atmosphere-1) 0%, transparent var(--bg-g1-r)),
+    radial-gradient(circle at var(--bg-g2-x) var(--bg-g2-y), var(--color-atmosphere-2) 0%, transparent var(--bg-g2-r));
+
+    @media (prefers-reduced-motion: no-preference) {
+      animation: bg-drift 28s ease-in-out infinite;
+    }
   }
 
   .grain-texture {
@@ -165,4 +177,12 @@
   .selection-gold {
     @apply selection:bg-accent-gold selection:text-base-dark;
   }
+}
+
+@keyframes bg-drift {
+  0%   { --bg-g1-x: 15%; --bg-g1-y: 25%; --bg-g1-r: 45%; --bg-g2-x: 85%; --bg-g2-y: 75%; --bg-g2-r: 40%; filter: brightness(1)    saturate(1); }
+  20%  { --bg-g1-x: 32%; --bg-g1-y: 10%; --bg-g1-r: 58%; --bg-g2-x: 68%; --bg-g2-y: 90%; --bg-g2-r: 30%; filter: brightness(1.18) saturate(1.25); }
+  45%  { --bg-g1-x: 25%; --bg-g1-y: 45%; --bg-g1-r: 35%; --bg-g2-x: 92%; --bg-g2-y: 55%; --bg-g2-r: 52%; filter: brightness(0.82) saturate(0.75); }
+  70%  { --bg-g1-x:  5%; --bg-g1-y: 15%; --bg-g1-r: 50%; --bg-g2-x: 72%; --bg-g2-y: 88%; --bg-g2-r: 44%; filter: brightness(1.12) saturate(1.3); }
+  100% { --bg-g1-x: 15%; --bg-g1-y: 25%; --bg-g1-r: 45%; --bg-g2-x: 85%; --bg-g2-y: 75%; --bg-g2-r: 40%; filter: brightness(1)    saturate(1); }
 }
