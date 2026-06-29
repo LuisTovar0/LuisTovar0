@@ -86,6 +86,15 @@
             "ko": "(이 사이트의 소스 코드 포함)"
           },
           "icon": "github"
+        },
+        {
+          "label": "hagio.chat",
+          "url": "https://hagio.chat",
+          "description": {
+            "pt": "experimenta isto que eu fiz e diz-me o que achas",
+            "en": "I need feedback about this app I made",
+            "ko": "제가 만든 앱인데 한번 써보시고 피드백 부탁드려요"
+          }
         }
       ]
     }
