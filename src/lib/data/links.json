@@ -95,6 +95,10 @@
             "en": "I need feedback about this app I made",
             "ko": "제가 만든 앱인데 한번 써보시고 피드백 부탁드려요"
           }
+        },
+        {
+          "label": "Contadores",
+          "url": "https://contadores.lt0.dev"
         }
       ]
     }
