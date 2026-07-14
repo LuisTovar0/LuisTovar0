@@ -19,7 +19,7 @@
 
 /* --- Shell & background layers --- */
 .app-shell {
-  @apply h-[100dvh] w-full bg-base-dark text-base-cream relative overflow-hidden;
+  @apply h-dvh w-full bg-base-dark text-base-cream relative overflow-hidden;
   transition: background-color 0.5s var(--easing-expo), color 0.5s var(--easing-expo);
 
   /* Suppress transitions/animations during the initial "settling" phase (mount)
@@ -108,7 +108,7 @@
 
 .area-nav {
   @apply z-40 flex justify-start mt-2 mb-10;
-  @apply xl:col-start-2 xl:row-start-1 xl:place-self-end xl:justify-self-start xl:sticky xl:top-[10vh] xl:pt-2 xl:block xl:mb-0;
+  @apply xl:col-start-2 xl:row-start-1 xl:place-self-end xl:justify-self-start xl:sticky xl:top-[10dvh] xl:pt-2 xl:block xl:mb-0;
 }
 
 .area-links {
