@@ -95,12 +95,13 @@
   /* Size tracks viewport HEIGHT (~18.7vh), not width: across every target
      device the ideal size is a near-constant fraction of height, so a short
      1280x680 laptop and a 375x667 phone both land ~128px while tall tablets
-     reach ~256px. `min(.,42dvw)` only engages on very narrow viewports to stop
-     overflow; the rem floor/ceiling bound the extremes and keep browser zoom
-     working at the ends (WCAG 1.4.4). One unified clamp replaces the old dvw
-     ramp, so the 3xl width tier is no longer needed. */
+     reach ~256px. On very narrow viewports the width cap also reserves space
+     for the fixed page gutter and the italic glyph overhang; using a bare
+     percentage of the viewport can otherwise spill by a few pixels on real
+     mobile font renderers. The rem floor/ceiling bound the extremes and keep
+     browser zoom working at the ends (WCAG 1.4.4). */
   font-size: clamp(7rem /* 112px */
-  , min(18.7vh, 42dvw), 16rem /* 256px */
+  , min(18.7vh, calc(42dvw - 0.5rem)), 16rem /* 256px */
   );
   @apply flex justify-start leading-[0.85] mb-10 pointer-events-none;
   @apply xl:col-start-1 xl:row-start-1 xl:place-self-end xl:text-right xl:mb-0;
