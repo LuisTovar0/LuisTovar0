@@ -16,23 +16,30 @@
   import { createLayoutState } from './layout.svelte.js';
 
   const layout = createLayoutState();
+  const canonicalUrl = $derived(new URL(page.url.pathname, page.url.origin).href);
+  const previewImageUrl = $derived(new URL('/screenshot.png', page.url.origin).href);
   let { children } = $props();
 </script>
 
 <svelte:head>
     <link rel="preload" href={urbanist300} as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="preload" href={urbanist600} as="font" type="font/woff2" crossorigin="anonymous" />
     <meta name="description" content="Personal website of Luís Tovar" />
     <meta property="og:title" content="Luís Tovar" />
     <meta property="og:description" content="Personal website of Luís Tovar" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={page.url.href} />
-    <meta property="og:image" content="{page.url.origin}/screenshot.png" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={previewImageUrl} />
+    <meta property="og:image:secure_url" content={previewImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1199" />
+    <meta property="og:image:height" content="629" />
     <meta property="og:image:alt" content="Luís Tovar's personal website" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Luís Tovar" />
     <meta name="twitter:description" content="Personal website of Luís Tovar" />
-    <meta name="twitter:image" content="{page.url.origin}/screenshot.png" />
+    <meta name="twitter:image" content={previewImageUrl} />
 </svelte:head>
 
 <div class="app-shell selection-gold" class:no-transitions={!layout.mounted}>
