@@ -43,16 +43,17 @@
         },
         {
           "label": {
-            "en": "My choir's sheet music",
-            "pt": "Partituras do meu coro",
-            "ko": "합창단 악보"
+            "en": "I sing in a choir",
+            "pt": "Canto num coro",
+            "ko": "저는 합창단에서 노래해요"
           },
           "description": {
             "en": "",
             "pt": "ouve-nos: domingos, 18:30, igreja de ramalde. e contrata-nos",
             "ko": ""
           },
-          "url": "https://drive.google.com/drive/folders/14rjRfzPzA9iwYknCXpxgrWuCMMYJr7Mu"
+          "icon": "instagram",
+          "url": "https://instagram.com/sursum.voces"
         },
         {
           "label": {
