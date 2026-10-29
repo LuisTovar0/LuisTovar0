@@ -146,6 +146,36 @@
   @apply xl:col-start-1 xl:row-start-2 xl:place-self-start xl:justify-self-end xl:justify-end xl:py-0 xl:mt-0;
 }
 
+.page-grid--no-nav {
+  @apply grid-rows-[auto_1fr_auto] xl:grid-rows-[minmax(0,1fr)_auto_auto_minmax(0,1fr)] xl:gap-y-0;
+
+  .area-title {
+    @apply xl:row-start-2;
+  }
+
+  .area-controls {
+    @apply xl:row-start-3 xl:mt-16;
+  }
+
+  .area-links {
+    @apply xl:row-start-2 xl:row-span-2 xl:py-0 xl:flex xl:flex-col;
+
+    @screen xl {
+      // Size the shared band from the name and controls, regardless of list length.
+      contain: size;
+
+      > * {
+        // Auto margins center short lists and yield to scrolling for long ones.
+        @apply shrink-0 my-auto;
+      }
+
+      .link-item:last-child .link-card {
+        @apply mb-0;
+      }
+    }
+  }
+}
+
 /* --- Navigation --- */
 .nav-list {
   @apply inline-flex gap-6 text-xs;

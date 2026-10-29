@@ -14,11 +14,12 @@
   import urbanist300 from "@fontsource/urbanist/files/urbanist-latin-300-normal.woff2?url";
   import urbanist600 from "@fontsource/urbanist/files/urbanist-latin-600-normal.woff2?url";
   import { createLayoutState } from './layout.svelte.js';
+  import type { LayoutProps } from './$types';
 
+  let { data, children }: LayoutProps = $props();
   const layout = createLayoutState();
   const canonicalUrl = $derived(new URL(page.url.pathname, page.url.origin).href);
-  const previewImageUrl = $derived(new URL('/screenshot.png', page.url.origin).href);
-  let { children } = $props();
+  const previewImageUrl = $derived(new URL('/social-preview.jpg', page.url.origin).href);
 </script>
 
 <svelte:head>
@@ -32,7 +33,7 @@
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={previewImageUrl} />
     <meta property="og:image:secure_url" content={previewImageUrl} />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1199" />
     <meta property="og:image:height" content="629" />
     <meta property="og:image:alt" content="Luís Tovar's personal website" />
@@ -63,25 +64,25 @@
             </main>
         {:else}
             <div class="page-container">
-                <div class="page-grid">
+                <div class="page-grid" class:page-grid--no-nav={data.hideStuff}>
                     <h1 class="area-title neon-text" lang="en">
                         <span>Luís<br />Tovar</span>
                     </h1>
 
-                    <header class="area-nav">
-                        <nav class="nav-list" bind:this={layout.navListEl}>
-                            {#each layout.sections as section, i}
-                                {@const isActive = page.url.pathname === `/${ section.id }`}
-                                <a href="/{section.id}" class="nav-link group" class:nav-active={isActive}>
-                                    <span class="nav-tick hidden xl:block"></span>
-                                    <span class="nav-label" class:neon-text={isActive}>
-                                        <Swap text={t(section.label, $locale)} delay={i * 45} />
-                                    </span>
-                                    <span class="nav-underline xl:hidden"></span>
-                                </a>
-                            {/each}
-                        </nav>
-                    </header>
+                    {#if !data.hideStuff}
+                        <header class="area-nav">
+                            <nav class="nav-list" bind:this={layout.navListEl}>
+                                {#each layout.sections as section, i}
+                                    {@const isActive = page.url.pathname === `/${ section.id }`}
+                                    <a href="/{section.id}" class="nav-link group" class:nav-active={isActive}> <span
+                                            class="nav-tick hidden xl:block"></span> <span class="nav-label"
+                                                                                           class:neon-text={isActive}>
+                                            <Swap text={t(section.label, $locale)} delay={i * 45} />
+                                        </span> <span class="nav-underline xl:hidden"></span> </a>
+                                {/each}
+                            </nav>
+                        </header>
+                    {/if}
 
                     <main class="area-links no-scrollbar"
                           class:fade-top={layout.canScrollUp} class:fade-bottom={layout.canScrollDown}
