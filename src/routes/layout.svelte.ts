@@ -3,6 +3,7 @@
 import "@fontsource/urbanist/300.css";
 import "@fontsource/urbanist/500.css";
 import "@fontsource/urbanist/600.css";
+import "@fontsource/dm-serif-display/latin-400-italic.css";
 import "../app.scss";
 import { browser } from "$app/environment";
 import { page } from "$app/state";

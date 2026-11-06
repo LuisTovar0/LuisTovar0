@@ -29,6 +29,7 @@
   "packageManager": "pnpm@9.15.9",
   "type": "module",
   "dependencies": {
+    "@fontsource/dm-serif-display": "^5.3.0",
     "@fontsource/gothic-a1": "^5.2.8",
     "@fontsource/urbanist": "^5.2.7"
   }

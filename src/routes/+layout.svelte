@@ -14,6 +14,7 @@
   // <link rel="preload"> below kicks the fetch off in the initial HTML instead.
   import urbanist300 from "@fontsource/urbanist/files/urbanist-latin-300-normal.woff2?url";
   import urbanist600 from "@fontsource/urbanist/files/urbanist-latin-600-normal.woff2?url";
+  import dmSerifItalic from "@fontsource/dm-serif-display/files/dm-serif-display-latin-400-italic.woff2?url";
   import { createLayoutState } from './layout.svelte.js';
   import type { LayoutProps } from './$types';
 
@@ -28,6 +29,9 @@
 </script>
 
 <svelte:head>
+    {#if page.url.pathname !== '/animations'}
+        <link rel="preload" href={dmSerifItalic} as="font" type="font/woff2" crossorigin="anonymous" />
+    {/if}
     <link rel="preload" href={urbanist300} as="font" type="font/woff2" crossorigin="anonymous" />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="preload" href={urbanist600} as="font" type="font/woff2" crossorigin="anonymous" />
