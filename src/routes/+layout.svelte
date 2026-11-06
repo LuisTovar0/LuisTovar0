@@ -6,6 +6,7 @@
   import ThemeIcon from "$lib/components/ThemeIcon.svelte";
   import { locale, localeLabels, t } from "$lib/i18n";
   import { ui } from "$lib/i18n/ui";
+  import { visibleSections } from "$lib/sections";
   // Preload the Urbanist weights present at first paint (300 descriptions, 600 nav/labels).
   // The @font-face rules ship in the JS-bundled CSS, so without this the font is only
   // discovered after that CSS loads and `font-display: swap` flashes the fallback first.
@@ -18,6 +19,10 @@
 
   let { data, children }: LayoutProps = $props();
   const layout = createLayoutState();
+  const sections = $derived(visibleSections(data.hiddenSections));
+  // Fewer than two sections left to switch between: drop the nav entirely and
+  // use the single-page layout.
+  const noNav = $derived(sections.length < 2);
   const canonicalUrl = $derived(new URL(page.url.pathname, page.url.origin).href);
   const previewImageUrl = $derived(new URL('/social-preview.jpg', page.url.origin).href);
 </script>
@@ -64,15 +69,15 @@
             </main>
         {:else}
             <div class="page-container">
-                <div class="page-grid" class:page-grid--no-nav={data.hideStuff}>
+                <div class="page-grid" class:page-grid--no-nav={noNav}>
                     <h1 class="area-title neon-text" lang="en">
                         <span>Luís<br />Tovar</span>
                     </h1>
 
-                    {#if !data.hideStuff}
+                    {#if !noNav}
                         <header class="area-nav">
                             <nav class="nav-list" bind:this={layout.navListEl}>
-                                {#each layout.sections as section, i}
+                                {#each sections as section, i}
                                     {@const isActive = page.url.pathname === `/${ section.id }`}
                                     <a href="/{section.id}" class="nav-link group" class:nav-active={isActive}> <span
                                             class="nav-tick hidden xl:block"></span> <span class="nav-label"

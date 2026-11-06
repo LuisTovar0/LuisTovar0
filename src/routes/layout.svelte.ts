@@ -6,7 +6,6 @@ import "@fontsource/urbanist/600.css";
 import "../app.scss";
 import { browser } from "$app/environment";
 import { page } from "$app/state";
-import linksData from "$lib/data/links.json";
 import { cycleLocale, initLocale, locale, locales } from "$lib/i18n";
 import { onMount, tick } from "svelte";
 import { get } from "svelte/store";
@@ -182,7 +181,6 @@ export function createLayoutState() {
     set controlsEl(v) { controlsEl = v; },
     get canScrollUp() { return canScrollUp; },
     get canScrollDown() { return canScrollDown; },
-    get sections() { return linksData.sections; },
     toggleTheme,
     changeLanguage,
     warmKoreanFonts,
